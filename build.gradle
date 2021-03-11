@@ -1,0 +1,31 @@
+plugins {
+    id 'java'
+}
+
+group 'eu.jrie.abacus'
+version '1.0-SNAPSHOT'
+
+repositories {
+    mavenCentral()
+}
+
+sourceCompatibility = JavaVersion.VERSION_15
+
+dependencies {
+    testImplementation 'org.junit.jupiter:junit-jupiter-api:5.7.1'
+    testRuntimeOnly 'org.junit.jupiter:junit-jupiter-engine'
+}
+
+test {
+    useJUnitPlatform()
+}
+
+tasks.withType(JavaCompile) {
+    options.compilerArgs += "--enable-preview"
+}
+tasks.withType(Test) {
+    jvmArgs += "--enable-preview"
+}
+tasks.withType(JavaExec) {
+    jvmArgs += "--enable-preview"
+}
