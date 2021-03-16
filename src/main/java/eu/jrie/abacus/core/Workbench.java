@@ -1,13 +1,20 @@
 package eu.jrie.abacus.core;
 
+import eu.jrie.abacus.core.formula.FormulaManager;
+import eu.jrie.abacus.lang.Parser;
+import eu.jrie.abacus.lang.domain.Formula;
+import eu.jrie.abacus.lang.domain.Value;
+
 import java.util.HashMap;
 import java.util.Map;
 
 public class Workbench {
     private final Map<Position, Cell> cells = new HashMap<>();
+    private final FormulaManager formulaManager = new FormulaManager();
+    private final Parser parser = new Parser(formulaManager.getFormulas());
 
     public Workbench() {
-        cells.put(new Position(3, 5), new Cell(new Position(3, 5), "add(a, b)", "test"));
+        cells.put(new Position(3, 5), new Cell(new Position(3, 5), "=add(a, b)", "test"));
     }
 
     public String getTextAt(Position position) {
@@ -21,7 +28,17 @@ public class Workbench {
     }
 
     private void updateCell(Cell cell) {
-        cell.setValue(cell.getText().toUpperCase());
+        try {
+            final var expression = parser.parse(cell.getText());
+            if (expression instanceof Formula formula) {
+                var value = formula.calculateValue();
+                cell.setValue(value);
+            } else if (expression instanceof Value value) {
+                cell.setValue(value.calculateValue());
+            }
+        } catch (Parser.InvalidInputException e) {
+            cell.setValue("ERROR");
+        }
     }
 
     public String getValueAt(Position position) {
