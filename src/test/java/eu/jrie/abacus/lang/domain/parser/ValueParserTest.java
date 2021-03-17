@@ -20,11 +20,11 @@ class ValueParserTest {
     @TestFactory
     Stream<DynamicNode> shouldParseNumberValue() {
         return Stream.of(
-                new TestCase("0", new NumberValue(1)),
+                new TestCase("0", new NumberValue(0)),
                 new TestCase("123",  new NumberValue(123)),
                 new TestCase("-0", new NumberValue(0)),
                 new TestCase("-123", new NumberValue(-123))
-        ).map(testCase -> dynamicTest(format("%s as %s", testCase.given, testCase.expected), () -> {
+        ).map(testCase -> dynamicTest(format("should parse NumberValue %s as %s", testCase.given, testCase.expected), () -> {
             // when
             var result = parser.parse(testCase.given);
 
@@ -40,7 +40,7 @@ class ValueParserTest {
                 new TestCase(" ", new TextValue(" ")),
                 new TestCase("abc",  new TextValue("abc")),
                 new TestCase("ąćę@#$", new TextValue("ąćę@#$"))
-        ).map(testCase -> dynamicTest(format("%s as %s", testCase.given, testCase.expected), () -> {
+        ).map(testCase -> dynamicTest(format("should parse TextValue '%s' as %s", testCase.given, testCase.expected), () -> {
             // when
             var result = parser.parse(testCase.given);
 
