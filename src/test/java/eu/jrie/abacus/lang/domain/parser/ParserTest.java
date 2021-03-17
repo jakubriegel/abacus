@@ -22,6 +22,7 @@ class ParserTest {
     @Test
     void shouldParseFormula() throws InvalidInputException {
         // given
+        var rawCellText = "=text ";
         var cellText = "=text";
         var formulaText = "text";
         var expectedFormula = new Formula("name", emptyList(), () -> null);
@@ -30,7 +31,7 @@ class ParserTest {
         when(formulaParser.parse(formulaText)).thenReturn(expectedFormula);
 
         // when
-        var result = parser.parse(cellText);
+        var result = parser.parse(rawCellText);
 
         // then
         verify(formulaParser).parse(formulaText);
@@ -42,6 +43,7 @@ class ParserTest {
     @Test
     void shouldParseValue() throws InvalidInputException {
         // given
+        var rawCellText = " text";
         var cellText = "text";
         var expectedValue = new TextValue(cellText);
 
@@ -49,7 +51,7 @@ class ParserTest {
         when(valueParser.parse(cellText)).thenReturn(expectedValue);
 
         // when
-        var result = parser.parse(cellText);
+        var result = parser.parse(rawCellText);
 
         // then
         verify(valueParser).parse(cellText);

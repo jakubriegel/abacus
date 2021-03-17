@@ -2,6 +2,8 @@ package eu.jrie.abacus.lang.domain.grammar;
 
 import java.util.regex.Pattern;
 
+import static java.lang.String.format;
+
 public enum Token implements GrammarElement {
     FUNCTION_NAME("[a-z]+"),
     FUNCTION_ARGS_START("\\("),
@@ -16,7 +18,8 @@ public enum Token implements GrammarElement {
 
     public final Pattern pattern;
 
-    Token(String pattern) {
-        this.pattern = Pattern.compile(pattern);
+    Token(String regex) {
+        var wrapped = format("\\s*%s\\s*", regex);
+        this.pattern = Pattern.compile(wrapped);
     }
 }

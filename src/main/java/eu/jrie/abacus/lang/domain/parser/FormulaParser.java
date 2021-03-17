@@ -38,8 +38,8 @@ class FormulaParser {
         this.formulas = formulas;
     }
 
-    Formula parse(String text)  throws InvalidInputException {
-        final var matches = matchRule(new Function(), text, new LinkedList<>());
+    Formula parse(String text) throws InvalidInputException {
+        final var matches = matchRule(new Function(), text.trim(), new LinkedList<>());
         if (matches == null) {
             throw new UnknownSyntaxException();
         } else {
@@ -117,8 +117,8 @@ class FormulaParser {
                 if (!matcher.find() || matcher.start() != 0) {
                     return null;
                 } else {
-                    var name = matcher.group();
-                    var match = new TokenMatch(token, name);
+                    var matched = matcher.group();
+                    var match = new TokenMatch(token, matched.trim(), matched);
                     return match(availableTokens, text.substring(matcher.end()), appended(results, match));
                 }
             } else if (element instanceof GrammarRule rule) {
@@ -127,7 +127,7 @@ class FormulaParser {
                     return null;
                 } else {
                     var matchedText = matched.stream()
-                            .map(TokenMatch::match)
+                            .map(TokenMatch::raw)
                             .collect(joining());
                     return match(availableTokens, text.substring(matchedText.length()), appended(results, matched));
                 }
