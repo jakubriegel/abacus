@@ -6,10 +6,10 @@ import java.util.function.Supplier;
 public record Formula(
         String functionName,
         List<? extends Expression> arguments,
-        Supplier<Value<?>> action
+        Supplier<Value> action
 ) implements Expression {
     @Override
-    public Value<?> calculateValue() {
+    public Value calculateValue() {
         return action.get();
     }
 }

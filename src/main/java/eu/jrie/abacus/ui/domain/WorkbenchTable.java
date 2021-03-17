@@ -1,7 +1,7 @@
 package eu.jrie.abacus.ui.domain;
 
-import eu.jrie.abacus.core.domain.Position;
 import eu.jrie.abacus.core.domain.Workbench;
+import eu.jrie.abacus.core.domain.cell.Position;
 import eu.jrie.abacus.core.infra.Alphabet;
 import eu.jrie.abacus.ui.infra.PropertyChangeAction;
 import eu.jrie.abacus.ui.infra.WorkbenchTablePropertyChangeListener;

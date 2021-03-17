@@ -8,5 +8,5 @@ import java.util.List;
 public final record FormulaDefinition(
         String name,
         List<Class<? extends Expression>> argumentTypes,
-        FormulaAction<? extends Value<?>> action
+        FormulaAction<? extends Value> action
 ) {}

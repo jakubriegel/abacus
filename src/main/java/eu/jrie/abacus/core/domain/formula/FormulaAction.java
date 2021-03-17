@@ -6,6 +6,6 @@ import eu.jrie.abacus.core.domain.expression.Value;
 import java.util.List;
 
 @FunctionalInterface
-public interface FormulaAction<T extends Value<?>> {
+public interface FormulaAction<T extends Value> {
     T run(List<? extends Expression> args);
 }
