@@ -1,8 +1,14 @@
 package eu.jrie.abacus.core.domain.expression;
 
-public final record TextValue(String value) implements Value {
+public final record TextValue(String value) implements Value<String> {
+
     @Override
-    public String calculateValue() {
+    public String get() {
         return value;
+    }
+
+    @Override
+    public TextValue calculateValue() {
+        return this;
     }
 }

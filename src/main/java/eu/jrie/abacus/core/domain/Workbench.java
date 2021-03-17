@@ -33,9 +33,9 @@ public class Workbench {
             final var expression = parser.parse(cell.getText());
             if (expression instanceof Formula formula) {
                 var value = formula.calculateValue();
-                cell.setValue(value);
-            } else if (expression instanceof Value value) {
-                cell.setValue(value.calculateValue());
+                cell.setValue(value.getAsString());
+            } else if (expression instanceof Value<?> value) {
+                cell.setValue(value.getAsString());
             }
         } catch (InvalidInputException e) {
             cell.setValue("ERROR");
