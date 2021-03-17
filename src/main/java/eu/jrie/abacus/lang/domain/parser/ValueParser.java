@@ -10,7 +10,7 @@ import static java.lang.Integer.parseInt;
 
 public class ValueParser {
 
-    private static final Pattern numberPattern = Pattern.compile("[0-9]+");
+    private static final Pattern numberPattern = Pattern.compile("-?[0-9]+");
 
     Value parse(String text) {
         if (isNumberValue(text)) {
