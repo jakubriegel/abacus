@@ -39,8 +39,4 @@ public class Parser {
     private static boolean hasFormulaPrefix(String text) {
         return text.startsWith(FORMULA_PREFIX);
     }
-
-
-
-
 }
