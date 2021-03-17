@@ -1,9 +1,10 @@
-package eu.jrie.abacus.core;
+package eu.jrie.abacus.core.domain;
 
-import eu.jrie.abacus.core.formula.FormulaManager;
+import eu.jrie.abacus.core.domain.expression.Formula;
+import eu.jrie.abacus.core.domain.expression.Value;
+import eu.jrie.abacus.core.domain.formula.FormulaManager;
 import eu.jrie.abacus.lang.Parser;
-import eu.jrie.abacus.lang.domain.Formula;
-import eu.jrie.abacus.lang.domain.Value;
+import eu.jrie.abacus.lang.domain.exception.InvalidInputException;
 
 import java.util.HashMap;
 import java.util.Map;
@@ -36,7 +37,7 @@ public class Workbench {
             } else if (expression instanceof Value value) {
                 cell.setValue(value.calculateValue());
             }
-        } catch (Parser.InvalidInputException e) {
+        } catch (InvalidInputException e) {
             cell.setValue("ERROR");
         }
     }

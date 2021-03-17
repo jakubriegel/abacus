@@ -1,7 +1,7 @@
-package eu.jrie.abacus.core.formula;
+package eu.jrie.abacus.core.domain.formula;
 
-import eu.jrie.abacus.lang.domain.NumberArgument;
-import eu.jrie.abacus.lang.domain.TextArgument;
+import eu.jrie.abacus.core.domain.argument.NumberArgument;
+import eu.jrie.abacus.core.domain.argument.TextArgument;
 
 import java.util.List;
 import java.util.Map;

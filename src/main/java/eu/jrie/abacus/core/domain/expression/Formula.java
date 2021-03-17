@@ -1,9 +1,8 @@
-package eu.jrie.abacus.lang.domain;
+package eu.jrie.abacus.core.domain.expression;
 
-import eu.jrie.abacus.lang.Parser;
+import eu.jrie.abacus.core.domain.argument.Argument;
 
 import java.util.List;
-import java.util.function.Function;
 import java.util.function.Supplier;
 
 public record Formula(

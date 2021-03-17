@@ -1,6 +1,6 @@
-package eu.jrie.abacus.core.formula;
+package eu.jrie.abacus.core.domain.formula;
 
-import eu.jrie.abacus.lang.domain.Argument;
+import eu.jrie.abacus.core.domain.argument.Argument;
 
 import java.util.List;
 

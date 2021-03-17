@@ -1,4 +1,4 @@
-package eu.jrie.abacus.lang.domain;
+package eu.jrie.abacus.core.domain.argument;
 
 import static java.lang.Long.parseLong;
 

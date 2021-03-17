@@ -1,4 +1,4 @@
-package eu.jrie.abacus.lang.domain;
+package eu.jrie.abacus.core.domain.expression;
 
 public final record TextValue(String value) implements Value {
     @Override

@@ -1,10 +1,16 @@
 package eu.jrie.abacus.lang;
 
-import eu.jrie.abacus.core.formula.FormulaDefinition;
-import eu.jrie.abacus.lang.domain.Expression;
-import eu.jrie.abacus.lang.domain.Formula;
-import eu.jrie.abacus.lang.domain.NumberValue;
-import eu.jrie.abacus.lang.domain.TextValue;
+import eu.jrie.abacus.core.domain.expression.Expression;
+import eu.jrie.abacus.core.domain.expression.Formula;
+import eu.jrie.abacus.core.domain.expression.NumberValue;
+import eu.jrie.abacus.core.domain.expression.TextValue;
+import eu.jrie.abacus.core.domain.formula.FormulaDefinition;
+import eu.jrie.abacus.lang.domain.exception.InvalidInputException;
+import eu.jrie.abacus.lang.domain.grammar.GrammarElement;
+import eu.jrie.abacus.lang.domain.grammar.GrammarRule;
+import eu.jrie.abacus.lang.domain.grammar.Token;
+import eu.jrie.abacus.lang.domain.grammar.TokenMatch;
+import eu.jrie.abacus.lang.domain.grammar.rule.Function;
 
 import java.lang.reflect.InvocationTargetException;
 import java.util.LinkedList;
@@ -13,13 +19,9 @@ import java.util.Map;
 import java.util.regex.Pattern;
 import java.util.stream.IntStream;
 
-import static eu.jrie.abacus.lang.Parser.Token.FUNCTION_ARG;
-import static eu.jrie.abacus.lang.Parser.Token.FUNCTION_ARGS_SEPARATOR;
-import static eu.jrie.abacus.lang.Parser.Token.FUNCTION_ARGS_START;
-import static eu.jrie.abacus.lang.Parser.Token.FUNCTION_ARGS_STOP;
-import static eu.jrie.abacus.lang.Parser.Token.FUNCTION_NAME;
+import static eu.jrie.abacus.lang.domain.grammar.Token.FUNCTION_ARG;
+import static eu.jrie.abacus.lang.domain.grammar.Token.FUNCTION_NAME;
 import static java.lang.Integer.parseInt;
-import static java.lang.String.format;
 import static java.util.Collections.singletonList;
 import static java.util.Collections.unmodifiableList;
 import static java.util.stream.Collectors.joining;
@@ -33,53 +35,6 @@ public class Parser {
 
     public Parser(Map<String, FormulaDefinition> formulas) {
         this.formulas = formulas;
-    }
-
-    sealed interface GrammarElement {}
-
-    enum Token implements GrammarElement {
-        FUNCTION_NAME("[a-z]+"),
-        FUNCTION_ARGS_START("\\("),
-        FUNCTION_ARG("[0-9a-zA-Z]+"),
-        FUNCTION_ARGS_SEPARATOR(","),
-        FUNCTION_ARGS_STOP("\\)");
-
-        final Pattern pattern;
-
-        Token(String pattern) {
-            this.pattern = Pattern.compile(pattern);
-        }
-    }
-
-    record TokenMatch (
-            Token token,
-            String match
-    ) {}
-
-    sealed interface GrammarRule extends GrammarElement {
-        List<List<GrammarElement>> getTokens();
-    }
-
-    final static class Function implements GrammarRule {
-
-        @Override
-        public List<List<GrammarElement>> getTokens() {
-            var r = List.of(
-                    FUNCTION_NAME, FUNCTION_ARGS_START, new FunctionArgs(), FUNCTION_ARGS_STOP
-            );
-            return List.of(r);
-        }
-    }
-
-    final static class FunctionArgs implements GrammarRule {
-
-        @Override
-        public List<List<GrammarElement>> getTokens() {
-            return List.of(
-                    List.of(FUNCTION_ARG, FUNCTION_ARGS_SEPARATOR, new FunctionArgs()),
-                    List.of(FUNCTION_ARG)
-            );
-        }
     }
 
     public Expression parse(String text) throws InvalidInputException {
@@ -109,13 +64,13 @@ public class Parser {
     private Formula resolveFormula(String text) throws InvalidInputException {
         final var matches = matchRule(new Function(), text, new LinkedList<>());
         var name = matches.stream()
-                .filter(it -> it.token == FUNCTION_NAME)
+                .filter(it -> it.token() == FUNCTION_NAME)
                 .findFirst()
                 .map(TokenMatch::match)
                 .get();
 
         var arguments = matches.stream()
-                .filter(it -> it.token == FUNCTION_ARG)
+                .filter(it -> it.token() == FUNCTION_ARG)
                 .map(TokenMatch::match)
                 .collect(toList());
 
@@ -171,15 +126,15 @@ public class Parser {
                 if (matched == null) {
                     return null;
                 } else {
-                    String matchedText = matched.stream().map(it -> it.match).collect(joining());
+                    var matchedText = matched.stream()
+                            .map(TokenMatch::match)
+                            .collect(joining());
                     return match(availableTokens, text.substring(matchedText.length()), appended(results, matched));
                 }
             }
         }
         throw new IllegalStateException();
     }
-
-    public static class InvalidInputException extends Exception {}
 
     private static <E> List<E> appended(final List<E> list, final E element) {
         return appended(list, singletonList(element));

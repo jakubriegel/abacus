@@ -1,4 +1,4 @@
-package eu.jrie.abacus.core;
+package eu.jrie.abacus.core.domain;
 
 public class Cell {
 

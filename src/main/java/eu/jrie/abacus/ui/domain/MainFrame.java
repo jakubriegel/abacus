@@ -1,6 +1,6 @@
 package eu.jrie.abacus.ui.domain;
 
-import eu.jrie.abacus.core.Workbench;
+import eu.jrie.abacus.core.domain.Workbench;
 
 import javax.swing.*;
 
