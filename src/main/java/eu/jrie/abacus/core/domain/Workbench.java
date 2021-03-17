@@ -7,8 +7,8 @@ import eu.jrie.abacus.core.domain.expression.Formula;
 import eu.jrie.abacus.core.domain.expression.TextValue;
 import eu.jrie.abacus.core.domain.expression.Value;
 import eu.jrie.abacus.core.domain.formula.FormulaManager;
-import eu.jrie.abacus.lang.Parser;
 import eu.jrie.abacus.lang.domain.exception.InvalidInputException;
+import eu.jrie.abacus.lang.domain.parser.Parser;
 
 public class Workbench {
 
