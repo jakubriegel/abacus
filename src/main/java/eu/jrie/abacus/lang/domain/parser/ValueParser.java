@@ -8,7 +8,7 @@ import java.util.regex.Pattern;
 
 import static java.lang.Integer.parseInt;
 
-public class ValueParser {
+class ValueParser {
 
     private static final Pattern numberPattern = Pattern.compile("-?[0-9]+");
 
