@@ -29,4 +29,20 @@ public class Alphabet {
                 .map(String::valueOf)
                 .collect(joining());
     }
+
+    public int getNumber(String literal) {
+        final var value = literal.toUpperCase()
+                .chars()
+                .map(letter -> {
+                    if (letter >= 'A' && letter <= 'J') {
+                        return letter - PRE_A_INDEX + ZERO_INDEX - 1;
+                    } else {
+                        return letter - 10;
+                    }
+                })
+                .mapToObj(l -> (char) l)
+                .map(String::valueOf)
+                .collect(joining());
+        return Integer.parseInt(value, 26);
+    }
 }

@@ -13,21 +13,43 @@ class AlphabetTest {
 
     private static final Alphabet alphabet = new Alphabet();
 
-    private record TestCase(int given, String expected) {}
+    private static record TestCase(int number, String literal) {}
+
+    private final Stream<TestCase> cases = Stream.of(
+            new TestCase(0, "A"),
+            new TestCase(1,  "B"),
+            new TestCase(26, "BA"),
+            new TestCase(53, "CB"),
+            new TestCase(102, "DY")
+    );
 
     @TestFactory
     Stream<DynamicNode> shouldParseNumberToLiteral() {
-        return Stream.of(
-                new TestCase(0, "A"),
-                new TestCase(1,  "B"),
-                new TestCase(26, "BA"),
-                new TestCase(102, "DY")
-        ).map(testCase -> dynamicTest(format("should parse %s to %s", testCase.given, testCase.expected), () -> {
-            // when
-            var result = alphabet.getLiteral(testCase.given);
+        return cases.map(testCase ->
+                dynamicTest(
+                        format("should parse %s to %s", testCase.number, testCase.literal),
+                        () -> {
+                            // when
+                            var result = alphabet.getLiteral(testCase.number);
 
-            // then
-            assertEquals(testCase.expected, result);
-        }));
+                            // then
+                            assertEquals(testCase.literal, result);
+                        })
+        );
+    }
+
+    @TestFactory
+    Stream<DynamicNode> shouldParseLiteralToNumber() {
+        return cases.map(testCase ->
+                dynamicTest(
+                        format("should parse %s to %s", testCase.literal, testCase.number),
+                        () -> {
+                            // when
+                            var result = alphabet.getNumber(testCase.literal);
+
+                            // then
+                            assertEquals(testCase.number, result);
+                        })
+        );
     }
 }
