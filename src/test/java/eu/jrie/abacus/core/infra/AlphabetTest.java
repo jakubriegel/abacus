@@ -21,7 +21,7 @@ class AlphabetTest {
                 new TestCase(0, "A"),
                 new TestCase(1,  "B"),
                 new TestCase(26, "BA"),
-                new TestCase(102, "DV")
+                new TestCase(102, "DY")
         ).map(testCase -> dynamicTest(format("should parse %s to %s", testCase.given, testCase.expected), () -> {
             // when
             var result = alphabet.getLiteral(testCase.given);
