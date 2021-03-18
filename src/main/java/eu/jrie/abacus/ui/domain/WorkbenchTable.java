@@ -35,13 +35,14 @@ class WorkbenchTable extends JTable {
         propertyChangeActions.add(new PropertyChangeAction("tableCellEditor", () -> {
             if (isEditing()) {
                 var editor = (JTextField) getEditorComponent();
-                editor.setText(workbench.getTextAt(getSelected()));
+                var cellText = workbench.getTextAt(getSelected());
+                editor.setText(cellText);
             } else {
                 var selected = getSelected();
-                var editedText = (String) model.getValueAt(selected.y(), selected.x());
+                var editedText = getValue(selected);
                 workbench.setTextAt(selected, editedText);
-                var t = workbench.getValueAt(selected);
-                model.setValueAt(t, selected.y(), selected.x());
+                var updatedValue = workbench.getValueAt(selected);
+                setValue(updatedValue, selected);
             }
         }));
         addPropertyChangeListener(new WorkbenchTablePropertyChangeListener(propertyChangeActions));
@@ -51,7 +52,7 @@ class WorkbenchTable extends JTable {
         final int maxX = model.getColumnCount();
         final int y = model.getRowCount();
 
-        var cellsValues = range(1, maxX)
+        var cellsValues = range(0, maxX)
                 .mapToObj(x -> new Position(x, y))
                 .map(workbench::getValueAt)
                 .collect(toList());
@@ -63,7 +64,8 @@ class WorkbenchTable extends JTable {
     }
 
     void newColumn() {
-        model.addColumn(alphabet.next());
+        final int x = model.getColumnCount() - 1;
+        model.addColumn(alphabet.getLiteral(x));
         setColumnWidths();
     }
 
@@ -79,7 +81,15 @@ class WorkbenchTable extends JTable {
 
     private Position getSelected() {
         final int y = getSelectedRow();
-        final int x = getSelectedColumn();
+        final int x = getSelectedColumn() - 1;
         return new Position(x, y);
+    }
+
+    private String getValue(Position position) {
+        return (String) model.getValueAt(position.y(), position.x()+1);
+    }
+
+    private void setValue(String value, Position position) {
+        model.setValueAt(value, position.y(), position.x()+1);
     }
 }
