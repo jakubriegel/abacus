@@ -13,9 +13,9 @@ public final class Function implements GrammarRule {
 
     @Override
     public List<List<GrammarElement>> getTokens() {
-        var r = List.of(
-                FUNCTION_NAME, FUNCTION_ARGS_START, new FunctionArgs(), FUNCTION_ARGS_STOP
+        return List.of(
+                List.of(FUNCTION_NAME, FUNCTION_ARGS_START, new FunctionArgs(), FUNCTION_ARGS_STOP),
+                List.of(FUNCTION_NAME, FUNCTION_ARGS_START, FUNCTION_ARGS_STOP)
         );
-        return List.of(r);
     }
 }

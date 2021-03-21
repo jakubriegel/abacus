@@ -4,13 +4,10 @@ import eu.jrie.abacus.core.domain.expression.NumberValue;
 import eu.jrie.abacus.core.domain.expression.TextValue;
 import eu.jrie.abacus.core.domain.expression.Value;
 
-import java.util.regex.Pattern;
-
+import static eu.jrie.abacus.lang.domain.grammar.Token.NUMBER_VALUE;
 import static java.lang.Integer.parseInt;
 
 class ValueParser {
-
-    private static final Pattern numberPattern = Pattern.compile("-?[0-9]+");
 
     Value parse(String text) {
         if (isNumberValue(text)) {
@@ -21,7 +18,7 @@ class ValueParser {
     }
 
     private static boolean isNumberValue(String text) {
-        return numberPattern.matcher(text)
+        return NUMBER_VALUE.pattern.matcher(text)
                 .matches();
     }
 }

@@ -1,11 +1,7 @@
 package eu.jrie.abacus.lang.domain.parser;
 
 import eu.jrie.abacus.core.domain.expression.Expression;
-import eu.jrie.abacus.core.domain.formula.FormulaDefinition;
 import eu.jrie.abacus.lang.domain.exception.InvalidInputException;
-
-import java.util.List;
-import java.util.Map;
 
 public class Parser {
 
@@ -13,11 +9,6 @@ public class Parser {
 
     private final FormulaParser formulaParser;
     private final ValueParser valueParser;
-
-    public Parser(Map<String, List<FormulaDefinition>> formulas) {
-        this.valueParser = new ValueParser();
-        this.formulaParser = new FormulaParser(formulas);
-    }
 
     public Parser(ValueParser valueParser, FormulaParser formulaParser) {
         this.valueParser = valueParser;

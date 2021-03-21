@@ -14,13 +14,15 @@ public class FormulaManager {
                     new FormulaDefinition(
                             "cool",
                             List.of(TextValue.class, NumberValue.class),
-                            args -> {
+                            (context, args) -> {
+                                var text = (TextValue) args.get(0).get(context);
+                                var number = (NumberValue) args.get(1).get(context);
                                 System.out.println("in cool " + args);
-                                return new TextValue(format("%s - %s", args.get(0), args.get(1)));
+                                return new TextValue(format("%s - %s", text.value(), number.value()));
                             })
             ));
 
-    public Map<String, List<FormulaDefinition>> getFormulas() {
-        return formulas;
+    public List<FormulaDefinition> findDefinitions(String name) {
+        return formulas.get(name);
     }
 }

@@ -1,7 +1,9 @@
 package eu.jrie.abacus.ui.domain;
 
-import eu.jrie.abacus.core.domain.Workbench;
 import eu.jrie.abacus.core.domain.cell.Position;
+import eu.jrie.abacus.core.domain.workbench.CellReadException;
+import eu.jrie.abacus.core.domain.workbench.FormulaExecutionException;
+import eu.jrie.abacus.core.domain.workbench.Workbench;
 import eu.jrie.abacus.core.infra.Alphabet;
 import eu.jrie.abacus.ui.infra.PropertyChangeAction;
 import eu.jrie.abacus.ui.infra.WorkbenchTablePropertyChangeListener;
@@ -40,7 +42,7 @@ class WorkbenchTable extends JTable {
             } else {
                 var selected = getSelected();
                 var editedText = getValue(selected);
-                workbench.setTextAt(selected, editedText);
+                updateCell(selected, editedText);
                 var updatedValue = workbench.getValueAt(selected);
                 setValue(updatedValue, selected);
             }
@@ -91,5 +93,13 @@ class WorkbenchTable extends JTable {
 
     private void setValue(String value, Position position) {
         model.setValueAt(value, position.y(), position.x()+1);
+    }
+
+    private void updateCell(Position position, String text) {
+        try {
+            workbench.setTextAt(position, text);
+        } catch (CellReadException | FormulaExecutionException e) {
+            // ignore
+        }
     }
 }
