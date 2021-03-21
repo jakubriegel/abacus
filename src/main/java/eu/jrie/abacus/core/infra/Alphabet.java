@@ -1,29 +1,48 @@
 package eu.jrie.abacus.core.infra;
 
-import java.util.Iterator;
 import java.util.List;
 
+import static java.util.stream.Collectors.joining;
 import static java.util.stream.Collectors.toUnmodifiableList;
 
-public class Alphabet implements Iterator<String> {
+public class Alphabet {
 
-    private final List<String> alphabet = "ABCDEFGHIJKLMNOPQRSTUVWXYZ".chars()
-            .mapToObj(l -> (char) l)
-            .map(String::valueOf)
+    private static final int ZERO_INDEX = 48;
+    private static final int PRE_A_INDEX = 64;
+
+    private static final List<Integer> alphabet = "ABCDEFGHIJKLMNOPQRSTUVWXYZ".chars()
+            .boxed()
             .collect(toUnmodifiableList());
 
-    private Iterator<String> currentIterator = alphabet.iterator();
-
-    @Override
-    public boolean hasNext() {
-        return true;
+    public String getLiteral(int number) {
+        final var value = Integer.toString(number, 26);
+        return value.toUpperCase()
+                .chars()
+                .map(digit -> {
+                    if (digit >= '0' && digit <= '9') {
+                        return alphabet.get(digit - ZERO_INDEX);
+                    } else {
+                        return alphabet.get(digit - PRE_A_INDEX + 9);
+                    }
+                })
+                .mapToObj(l -> (char) l)
+                .map(String::valueOf)
+                .collect(joining());
     }
 
-    @Override
-    public String next() {
-        if (!currentIterator.hasNext()) {
-            currentIterator = alphabet.iterator();
-        }
-        return currentIterator.next();
+    public int getNumber(String literal) {
+        final var value = literal.toUpperCase()
+                .chars()
+                .map(letter -> {
+                    if (letter >= 'A' && letter <= 'J') {
+                        return letter - PRE_A_INDEX + ZERO_INDEX - 1;
+                    } else {
+                        return letter - 10;
+                    }
+                })
+                .mapToObj(l -> (char) l)
+                .map(String::valueOf)
+                .collect(joining());
+        return Integer.parseInt(value, 26);
     }
 }

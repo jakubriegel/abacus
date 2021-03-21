@@ -1,17 +1,21 @@
-package eu.jrie.abacus.core;
+package eu.jrie.abacus.core.domain.cell;
+
+import eu.jrie.abacus.core.domain.expression.Value;
+
+import java.util.Optional;
 
 public class Cell {
 
     private final Position position;
     private String text;
-    private String value;
+    private Value value;
 
     public Cell(Position position) {
         this.position = position;
         this.value = null;
     }
 
-    public Cell(Position position, String text, String value) {
+    public Cell(Position position, String text, Value value) {
         this.position = position;
         this.text = text;
         this.value = value;
@@ -30,11 +34,17 @@ public class Cell {
         return position.hashCode();
     }
 
-    public String getValue() {
+    public String getValueAsString() {
+        return Optional.ofNullable(value)
+                .map(Value::getAsString)
+                .orElse("");
+    }
+
+    public Value getValue() {
         return value;
     }
 
-    void setValue(String value) {
+    public void setValue(Value value) {
         this.value = value;
     }
 
