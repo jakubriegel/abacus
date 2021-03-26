@@ -1,10 +1,11 @@
 package eu.jrie.abacus;
 
-import eu.jrie.abacus.ui.domain.MainFrame;
+import static eu.jrie.abacus.ui.domain.AppFrameFactory.buildAppFrame;
 
 public class Abacus {
     public static void main(String[] args) {
-        final var frame = new MainFrame();
+        final var frame = buildAppFrame();
         frame.start();
+        frame.setVisible();
     }
 }

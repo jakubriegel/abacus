@@ -1,4 +1,4 @@
-package eu.jrie.abacus.ui.domain;
+package eu.jrie.abacus.ui.domain.components.space.workbench;
 
 import eu.jrie.abacus.core.domain.cell.Position;
 import eu.jrie.abacus.core.domain.workbench.CellReadException;
@@ -9,22 +9,25 @@ import eu.jrie.abacus.ui.infra.PropertyChangeAction;
 import eu.jrie.abacus.ui.infra.WorkbenchTablePropertyChangeListener;
 
 import javax.swing.*;
+import javax.swing.table.DefaultTableCellRenderer;
 import java.util.HashSet;
 import java.util.Vector;
 
+import static eu.jrie.abacus.ui.infra.FontProvider.standardFont;
 import static java.util.stream.Collectors.toList;
 import static java.util.stream.IntStream.range;
 
-class WorkbenchTable extends JTable {
+public class WorkbenchTable extends JTable {
 
     private final Alphabet alphabet = new Alphabet();
     private final WorkbenchTableModel model = new WorkbenchTableModel();
 
     public final Workbench workbench;
 
-    WorkbenchTable(Workbench workbench) {
+    public WorkbenchTable(Workbench workbench) {
         super();
         this.workbench = workbench;
+        setFont(standardFont());
 
         setModel(model);
         setBounds(0, 0, 300, 400);
@@ -72,7 +75,12 @@ class WorkbenchTable extends JTable {
     }
 
     void setColumnWidths() {
-        columnModel.getColumn(0).setMaxWidth(35);
+        var rowAxisColumn = columnModel.getColumn(0);
+        rowAxisColumn.setMaxWidth(35);
+        var centerRenderer = new DefaultTableCellRenderer();
+        centerRenderer.setHorizontalAlignment( JLabel.CENTER );
+        rowAxisColumn.setCellRenderer(centerRenderer);
+
         range(1, getColumnCount())
                 .mapToObj(i -> columnModel.getColumn(i))
                 .forEach(column -> {
