@@ -1,4 +1,4 @@
-package eu.jrie.abacus.ui.infra;
+package eu.jrie.abacus.ui.infra.helper;
 
 import javax.swing.*;
 import java.awt.*;
