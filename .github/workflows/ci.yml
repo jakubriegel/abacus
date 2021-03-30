@@ -11,9 +11,9 @@ jobs:
         uses: actions/setup-java@v1
         with:
           java-version: 15
-      - name: Mock display
-        run: export DISPLAY=:0.0
       - name: unit tests
+        env:
+          DISPLAY: :0.0
         run: ./gradlew clean test
   integration:
     runs-on: ubuntu-latest
