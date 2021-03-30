@@ -6,7 +6,6 @@ import eu.jrie.abacus.ui.domain.components.space.UtilsMenu;
 import eu.jrie.abacus.ui.domain.components.toolbar.LogoLabel;
 import eu.jrie.abacus.ui.domain.components.toolbar.TextTools;
 import eu.jrie.abacus.ui.domain.components.toolbar.Toolbar;
-import eu.jrie.abacus.ui.domain.components.toolbar.editor.CellEditor;
 import eu.jrie.abacus.ui.infra.ResourcesProvider;
 import org.junit.jupiter.api.Test;
 
@@ -26,7 +25,7 @@ import static org.mockito.Mockito.when;
 class AppFrameTest extends UITest {
 
     private final ResourcesProvider resourcesProvider = mock(ResourcesProvider.class);
-    private final Toolbar toolbar = spy(new Toolbar(spy(LogoLabel.class), spy(CellEditor.class), spy(TextTools.class)));
+    private final Toolbar toolbar = spy(new Toolbar(spy(LogoLabel.class), cellEditorSpy(), spy(TextTools.class)));
     private final Space space = spy(new Space(spy(UtilsMenu.class), workbenchScrollSpy()));
 
     private final AppFrame appFrame = new AppFrame(resourcesProvider, toolbar, space);
@@ -43,7 +42,7 @@ class AppFrameTest extends UITest {
         verify(resourcesProvider).getIcon("abacus.png");
 
         // and
-        assertEquals(new Dimension(800, 600), appFrame.getSize());
+        assertEquals(new Dimension(1200, 800), appFrame.getSize());
         assertEquals(new Dimension(600, 120), appFrame.getMinimumSize());
         assertEquals(new Dimension(Integer.MAX_VALUE, Integer.MAX_VALUE), appFrame.getMaximumSize());
         assertHasBoxLayout(appFrame.getContentPane(), Y_AXIS);
@@ -52,5 +51,4 @@ class AppFrameTest extends UITest {
         assertIterableEquals(List.of(toolbar, space), asList(appFrame.getContentPane().getComponents()));
         assertEquals("untitled.abcsv - Abacus", appFrame.getTitle());
     }
-
 }

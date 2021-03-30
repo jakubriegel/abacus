@@ -3,7 +3,12 @@ package eu.jrie.abacus.ui;
 import eu.jrie.abacus.ui.domain.components.space.workbench.WorkbenchScroll;
 import eu.jrie.abacus.ui.domain.components.space.workbench.WorkbenchTable;
 import eu.jrie.abacus.ui.domain.components.space.workbench.WorkbenchTableModel;
+import eu.jrie.abacus.ui.domain.components.toolbar.editor.CellAddress;
+import eu.jrie.abacus.ui.domain.components.toolbar.editor.CellEditor;
+import eu.jrie.abacus.ui.domain.components.toolbar.editor.CellEditorField;
+import eu.jrie.abacus.ui.domain.components.toolbar.editor.Symbol;
 import eu.jrie.abacus.ui.domain.workbench.WorkbenchAccessor;
+import eu.jrie.abacus.ui.infra.ResourcesProvider;
 import eu.jrie.abacus.ui.infra.event.EventBus;
 
 import javax.swing.*;
@@ -22,6 +27,16 @@ public abstract class UITest {
 
     protected static WorkbenchScroll workbenchScrollSpy() {
         return spy(new WorkbenchScroll(workbenchTableSpy()));
+    }
+
+    protected static eu.jrie.abacus.ui.domain.components.toolbar.editor.CellEditor cellEditorSpy() {
+        var resourceProvider = spy(ResourcesProvider.class);
+        var symbol = spy(Symbol.class);
+        var cellAddress = spy(CellAddress.class);
+        var cellEditorField = spy(CellEditorField.class);
+        var eventBus = mock(EventBus.class);
+        var workbench = mock(WorkbenchAccessor.class);
+        return spy(new CellEditor(resourceProvider, symbol, cellAddress, cellEditorField, eventBus, workbench));
     }
 
     protected static void assertHasStandardFont(JComponent component) {
