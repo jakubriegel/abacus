@@ -1,4 +1,4 @@
-package eu.jrie.abacus.ui.domain;
+package eu.jrie.abacus.ui.domain.components.space.workbench;
 
 import javax.swing.table.DefaultTableModel;
 import java.util.Vector;
@@ -6,7 +6,7 @@ import java.util.Vector;
 import static java.util.Collections.singleton;
 
 public class WorkbenchTableModel extends DefaultTableModel {
-    WorkbenchTableModel() {
+    public WorkbenchTableModel() {
         super(new Vector<>(singleton("")), 0);
     }
 

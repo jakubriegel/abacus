@@ -1,14 +1,14 @@
-package eu.jrie.abacus.ui.domain;
+package eu.jrie.abacus.ui.domain.components.space.workbench;
 
 import javax.swing.*;
 import javax.swing.event.ChangeEvent;
 import javax.swing.event.ChangeListener;
 
-class WorkbenchScroll extends JScrollPane {
+public class WorkbenchScroll extends JScrollPane {
 
     private final WorkbenchTable workbenchTable;
 
-    WorkbenchScroll(WorkbenchTable workbenchTable) {
+    public WorkbenchScroll(WorkbenchTable workbenchTable) {
         super(workbenchTable, VERTICAL_SCROLLBAR_ALWAYS, HORIZONTAL_SCROLLBAR_ALWAYS);
         this.workbenchTable = workbenchTable;
         createHorizontalScrollBar();
