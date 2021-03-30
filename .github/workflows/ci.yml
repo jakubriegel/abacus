@@ -12,9 +12,9 @@ jobs:
         with:
           java-version: 15
       - name: unit tests
+        run: ./gradlew clean test
         env:
           ABACUS_TEST_HEADLESS: 1
-        run: ./gradlew clean test
   integration:
     runs-on: ubuntu-latest
     steps:
