@@ -8,6 +8,7 @@ import eu.jrie.abacus.ui.domain.components.toolbar.TextTools;
 import eu.jrie.abacus.ui.domain.components.toolbar.Toolbar;
 import eu.jrie.abacus.ui.infra.ResourcesProvider;
 import org.junit.jupiter.api.Test;
+import org.junit.jupiter.api.condition.DisabledIfSystemProperty;
 
 import javax.swing.*;
 import java.awt.*;
@@ -31,6 +32,7 @@ class AppFrameTest extends UITest {
     private final AppFrame appFrame = new AppFrame(resourcesProvider, toolbar, space);
 
     @Test
+    @DisabledIfSystemProperty(named = "abacus.test.headless", matches = "true")
     void shouldStartAppFrame() {
         // given
         when(resourcesProvider.getIcon("abacus.png")).thenReturn(new ImageIcon());
