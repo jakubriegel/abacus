@@ -12,7 +12,9 @@ jobs:
         with:
           java-version: 15
       - name: unit tests
-        run: ./gradlew -Dabacus.test.headless=true clean test
+        env:
+          ABACUS_TEST_HEADLESS: true
+        run: ./gradlew clean test
   integration:
     runs-on: ubuntu-latest
     steps:

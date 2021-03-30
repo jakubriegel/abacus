@@ -8,7 +8,7 @@ import eu.jrie.abacus.ui.domain.components.toolbar.TextTools;
 import eu.jrie.abacus.ui.domain.components.toolbar.Toolbar;
 import eu.jrie.abacus.ui.infra.ResourcesProvider;
 import org.junit.jupiter.api.Test;
-import org.junit.jupiter.api.condition.DisabledIfSystemProperty;
+import org.junit.jupiter.api.condition.DisabledIfEnvironmentVariable;
 
 import javax.swing.*;
 import java.awt.*;
@@ -32,7 +32,7 @@ class AppFrameTest extends UITest {
     private final AppFrame appFrame = new AppFrame(resourcesProvider, toolbar, space);
 
     @Test
-    @DisabledIfSystemProperty(named = "abacus.test.headless", matches = "true")
+    @DisabledIfEnvironmentVariable(named = "ABACUS_TEST_HEADLESS", matches = "true")
     void shouldStartAppFrame() {
         // given
         when(resourcesProvider.getIcon("abacus.png")).thenReturn(new ImageIcon());
@@ -44,7 +44,7 @@ class AppFrameTest extends UITest {
         verify(resourcesProvider).getIcon("abacus.png");
 
         // and
-        assertEquals(new Dimension(1200, 800), appFrame.getSize());
+        assertEquals(new Dimension(1200, 8010), appFrame.getSize());
         assertEquals(new Dimension(600, 120), appFrame.getMinimumSize());
         assertEquals(new Dimension(Integer.MAX_VALUE, Integer.MAX_VALUE), appFrame.getMaximumSize());
         assertHasBoxLayout(appFrame.getContentPane(), Y_AXIS);
