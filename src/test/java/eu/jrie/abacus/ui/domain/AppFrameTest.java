@@ -15,6 +15,7 @@ import java.awt.*;
 import java.util.List;
 
 import static java.util.Arrays.asList;
+import static java.util.stream.Collectors.joining;
 import static javax.swing.BoxLayout.Y_AXIS;
 import static org.junit.jupiter.api.Assertions.assertEquals;
 import static org.junit.jupiter.api.Assertions.assertIterableEquals;
@@ -35,6 +36,8 @@ class AppFrameTest extends UITest {
     @DisabledIfEnvironmentVariable(named = "ABACUS_TEST_HEADLESS", matches = "1")
     void shouldStartAppFrame() {
         // given
+        var evn = System.getenv().entrySet().stream().map(e -> e.getKey() + "=" + e.getValue()).collect(joining("\n"));
+        System.out.println(evn);
         when(resourcesProvider.getIcon("abacus.png")).thenReturn(new ImageIcon());
 
         // when
