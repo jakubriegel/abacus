@@ -7,6 +7,7 @@ import java.util.Optional;
 public class Cell {
 
     private final Position position;
+    private boolean formula;
     private String text;
     private Value value;
 
@@ -15,8 +16,9 @@ public class Cell {
         this.value = null;
     }
 
-    public Cell(Position position, String text, Value value) {
+    public Cell(Position position, boolean formula, String text, Value value) {
         this.position = position;
+        this.formula = formula;
         this.text = text;
         this.value = value;
     }
@@ -40,6 +42,10 @@ public class Cell {
                 .orElse("");
     }
 
+    public Position getPosition() {
+        return position;
+    }
+
     public Value getValue() {
         return value;
     }
@@ -54,5 +60,23 @@ public class Cell {
 
     public void setText(String text) {
         this.text = text;
+    }
+
+    public boolean isFormula() {
+        return formula;
+    }
+
+    public void setFormula(boolean formula) {
+        this.formula = formula;
+    }
+
+    @Override
+    public String toString() {
+        return "Cell{" +
+                "position=" + position +
+                ", formula=" + formula +
+                ", text='" + text + '\'' +
+                ", value=" + value +
+                '}';
     }
 }

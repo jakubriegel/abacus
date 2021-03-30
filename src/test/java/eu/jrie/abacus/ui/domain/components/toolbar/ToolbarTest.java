@@ -1,6 +1,13 @@
 package eu.jrie.abacus.ui.domain.components.toolbar;
 
 import eu.jrie.abacus.ui.UITest;
+import eu.jrie.abacus.ui.domain.components.toolbar.editor.CellAddress;
+import eu.jrie.abacus.ui.domain.components.toolbar.editor.CellEditor;
+import eu.jrie.abacus.ui.domain.components.toolbar.editor.CellEditorField;
+import eu.jrie.abacus.ui.domain.components.toolbar.editor.Symbol;
+import eu.jrie.abacus.ui.domain.workbench.WorkbenchAccessor;
+import eu.jrie.abacus.ui.infra.ResourcesProvider;
+import eu.jrie.abacus.ui.infra.event.EventBus;
 import org.junit.jupiter.api.Test;
 
 import java.util.List;
@@ -8,6 +15,7 @@ import java.util.List;
 import static java.util.Arrays.asList;
 import static javax.swing.BoxLayout.X_AXIS;
 import static org.junit.jupiter.api.Assertions.assertIterableEquals;
+import static org.mockito.Mockito.mock;
 import static org.mockito.Mockito.spy;
 
 class ToolbarTest extends UITest {
@@ -15,7 +23,13 @@ class ToolbarTest extends UITest {
     void shouldCreateToolbar() {
         // given
         var logoLabel = spy(LogoLabel.class);
-        var cellEditor = spy(CellEditor.class);
+        var cellEditor = spy(
+                new CellEditor(
+                        mock(ResourcesProvider.class),
+                        spy(Symbol.class), spy(CellAddress.class), spy(CellEditorField.class),
+                        spy(EventBus.class), mock(WorkbenchAccessor.class)
+                )
+        );
         var textTools = spy(TextTools.class);
 
         // when

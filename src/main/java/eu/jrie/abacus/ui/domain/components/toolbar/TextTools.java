@@ -7,7 +7,7 @@ import javax.swing.*;
 import java.awt.*;
 import java.util.List;
 
-import static eu.jrie.abacus.ui.infra.ComponentHelper.setConstantSize;
+import static eu.jrie.abacus.ui.infra.helper.ComponentHelper.setConstantSize;
 import static java.awt.Color.black;
 import static java.awt.Color.gray;
 import static java.awt.Color.white;

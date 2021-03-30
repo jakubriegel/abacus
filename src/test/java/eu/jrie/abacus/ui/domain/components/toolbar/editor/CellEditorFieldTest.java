@@ -1,4 +1,4 @@
-package eu.jrie.abacus.ui.domain.components.toolbar;
+package eu.jrie.abacus.ui.domain.components.toolbar.editor;
 
 import eu.jrie.abacus.ui.UITest;
 import org.junit.jupiter.api.Test;
@@ -12,18 +12,18 @@ import static eu.jrie.abacus.ui.domain.Colors.PRIMARY_COLOR;
 import static org.junit.jupiter.api.Assertions.assertEquals;
 import static org.junit.jupiter.api.Assertions.assertTrue;
 
-class CellEditorTest extends UITest {
+public class CellEditorFieldTest extends UITest {
     @Test
-    void shouldCreateCellEditor() {
+    void shouldCreateCellEditorField() {
         // when
-        var cellEditor = new CellEditor();
+        var cellEditorField = new CellEditorField();
 
         // then
-        assertHasHorizontallyFlexibleSize(cellEditor, 400, 50);
-        assertHasStandardFont(cellEditor);
-        assertTrue(cellEditor.getLineWrap());
-        assertTrue(cellEditor.getBorder() instanceof CompoundBorder);
-        var border = (CompoundBorder) cellEditor.getBorder();
+        assertHasHorizontallyFlexibleSize(cellEditorField, 375, 50);
+        assertHasStandardFont(cellEditorField);
+        assertTrue(cellEditorField.getLineWrap());
+        assertTrue(cellEditorField.getBorder() instanceof CompoundBorder);
+        var border = (CompoundBorder) cellEditorField.getBorder();
         assertTrue(border.getOutsideBorder() instanceof MatteBorder);
         var outsideBorder = (MatteBorder) border.getOutsideBorder();
         assertEquals(new Insets(0, 2, 0, 2), outsideBorder.getBorderInsets());
@@ -31,8 +31,18 @@ class CellEditorTest extends UITest {
         assertTrue(border.getInsideBorder() instanceof EmptyBorder);
         var insideBorder = (EmptyBorder) border.getInsideBorder();
         assertEquals(new Insets(5, 5, 5, 5), insideBorder.getBorderInsets());
+    }
 
-        // and
-        assertEquals("Select cell to edit...", cellEditor.getText());
+    @Test
+    void shouldSetText() {
+        // given
+        var cellEditorField = new CellEditorField();
+        var text = "text";
+
+        // when
+        cellEditorField.set(text);
+
+        // then
+        assertEquals(text, cellEditorField.getText());
     }
 }

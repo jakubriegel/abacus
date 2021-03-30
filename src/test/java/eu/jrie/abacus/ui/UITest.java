@@ -1,8 +1,10 @@
 package eu.jrie.abacus.ui;
 
-import eu.jrie.abacus.core.domain.workbench.Workbench;
 import eu.jrie.abacus.ui.domain.components.space.workbench.WorkbenchScroll;
 import eu.jrie.abacus.ui.domain.components.space.workbench.WorkbenchTable;
+import eu.jrie.abacus.ui.domain.components.space.workbench.WorkbenchTableModel;
+import eu.jrie.abacus.ui.domain.workbench.WorkbenchAccessor;
+import eu.jrie.abacus.ui.infra.event.EventBus;
 
 import javax.swing.*;
 import java.awt.*;
@@ -15,7 +17,7 @@ import static org.mockito.Mockito.spy;
 public abstract class UITest {
 
     protected static WorkbenchTable workbenchTableSpy() {
-        return spy(new WorkbenchTable(mock(Workbench.class)));
+        return spy(new WorkbenchTable(mock(WorkbenchAccessor.class), mock(WorkbenchTableModel.class), mock(EventBus.class)));
     }
 
     protected static WorkbenchScroll workbenchScrollSpy() {

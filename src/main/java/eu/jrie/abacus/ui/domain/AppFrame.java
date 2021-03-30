@@ -23,7 +23,7 @@ public class AppFrame extends JFrame {
     }
 
     public void start() {
-        setSize(800, 600);
+        setSize(1200, 800);
         setMinimumSize(new Dimension(600, 120));
         setDefaultCloseOperation(EXIT_ON_CLOSE);
         setLayout(new BoxLayout(getContentPane(), Y_AXIS));

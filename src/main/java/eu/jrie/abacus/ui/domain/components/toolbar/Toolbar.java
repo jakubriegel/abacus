@@ -1,9 +1,11 @@
 package eu.jrie.abacus.ui.domain.components.toolbar;
 
+import eu.jrie.abacus.ui.domain.components.toolbar.editor.CellEditor;
+
 import javax.swing.*;
 
 import static eu.jrie.abacus.ui.domain.Colors.PRIMARY_COLOR;
-import static eu.jrie.abacus.ui.infra.ComponentHelper.setHorizontallyFlexibleSize;
+import static eu.jrie.abacus.ui.infra.helper.ComponentHelper.setHorizontallyFlexibleSize;
 import static java.awt.Color.white;
 import static javax.swing.BorderFactory.createMatteBorder;
 import static javax.swing.BoxLayout.X_AXIS;

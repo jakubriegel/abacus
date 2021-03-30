@@ -3,10 +3,10 @@ package eu.jrie.abacus.ui.domain;
 import eu.jrie.abacus.ui.UITest;
 import eu.jrie.abacus.ui.domain.components.space.Space;
 import eu.jrie.abacus.ui.domain.components.space.UtilsMenu;
-import eu.jrie.abacus.ui.domain.components.toolbar.CellEditor;
 import eu.jrie.abacus.ui.domain.components.toolbar.LogoLabel;
 import eu.jrie.abacus.ui.domain.components.toolbar.TextTools;
 import eu.jrie.abacus.ui.domain.components.toolbar.Toolbar;
+import eu.jrie.abacus.ui.domain.components.toolbar.editor.CellEditor;
 import eu.jrie.abacus.ui.infra.ResourcesProvider;
 import org.junit.jupiter.api.Test;
 

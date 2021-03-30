@@ -8,7 +8,7 @@ import java.awt.*;
 import java.util.List;
 
 import static eu.jrie.abacus.ui.domain.Colors.PRIMARY_COLOR;
-import static eu.jrie.abacus.ui.infra.ComponentHelper.setConstantSize;
+import static eu.jrie.abacus.ui.infra.helper.ComponentHelper.setConstantSize;
 import static java.awt.Color.white;
 import static javax.swing.BorderFactory.createCompoundBorder;
 import static javax.swing.BorderFactory.createEmptyBorder;

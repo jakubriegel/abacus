@@ -19,8 +19,8 @@ public class Workbench {
     private final FormulaManager formulaManager = new FormulaManager();
     private final Parser parser = buildParser(new WorkbenchContext(cellManager, formulaManager));
 
-    public String getTextAt(Position position) {
-        return cellManager.getCell(position).getText();
+    public Cell getCell(Position position) {
+        return cellManager.getCell(position);
     }
 
     public void setTextAt(Position position, String text) throws CellReadException, FormulaExecutionException {
@@ -42,22 +42,24 @@ public class Workbench {
         try {
             return parser.parse(cell.getText());
         } catch (InvalidInputException e) {
-            cell.setValue(new TextValue("ERROR"));
+            cell.setValue(new TextValue("VALUE ERROR"));
             throw new CellReadException(e);
         }
     }
 
     private void updateCellWithFormula(Formula formula, Cell cell) throws FormulaExecutionException {
+        cell.setFormula(true);
         try {
             var value = formula.calculateValue();
             cell.setValue(value);
         } catch (Exception e) {
-            cell.setValue(new TextValue("ERROR"));
+            cell.setValue(new TextValue("FORMULA ERROR"));
             throw new FormulaExecutionException(e);
         }
     }
 
     private void updateCellWithValue(Value value, Cell cell) {
+        cell.setFormula(false);
         cell.setValue(value);
     }
 
