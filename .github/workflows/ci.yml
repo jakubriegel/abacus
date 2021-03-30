@@ -11,6 +11,8 @@ jobs:
         uses: actions/setup-java@v1
         with:
           java-version: 15
+      - name: Set read permissions
+        run: chmod +r src/main/resources src/test/resources
       - name: unit tests
         run: ./gradlew clean test
   integration:
