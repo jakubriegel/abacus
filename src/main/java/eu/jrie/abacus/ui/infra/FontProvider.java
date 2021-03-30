@@ -9,7 +9,7 @@ import static java.awt.GraphicsEnvironment.getLocalGraphicsEnvironment;
 
 public class FontProvider {
 
-    private static final File FONT_FILE = new File("C:\\Users\\jakub\\Dev\\abacus\\src\\main\\resources\\JetBrainsMono-Regular.ttf");
+    private static final File FONT_FILE = new File(FontProvider.class.getResource("/JetBrainsMono-Regular.ttf").getFile());
     private static Font font = null;
 
     private FontProvider() {}
