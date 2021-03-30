@@ -7,6 +7,7 @@ import eu.jrie.abacus.ui.domain.components.toolbar.LogoLabel;
 import eu.jrie.abacus.ui.domain.components.toolbar.TextTools;
 import eu.jrie.abacus.ui.domain.components.toolbar.Toolbar;
 import eu.jrie.abacus.ui.infra.ResourcesProvider;
+import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.condition.DisabledIfEnvironmentVariable;
 
@@ -15,7 +16,6 @@ import java.awt.*;
 import java.util.List;
 
 import static java.util.Arrays.asList;
-import static java.util.stream.Collectors.joining;
 import static javax.swing.BoxLayout.Y_AXIS;
 import static org.junit.jupiter.api.Assertions.assertEquals;
 import static org.junit.jupiter.api.Assertions.assertIterableEquals;
@@ -30,14 +30,17 @@ class AppFrameTest extends UITest {
     private final Toolbar toolbar = spy(new Toolbar(spy(LogoLabel.class), cellEditorSpy(), spy(TextTools.class)));
     private final Space space = spy(new Space(spy(UtilsMenu.class), workbenchScrollSpy()));
 
-    private final AppFrame appFrame = new AppFrame(resourcesProvider, toolbar, space);
+    private AppFrame appFrame;
+
+    @BeforeEach
+    void setup() {
+        appFrame = new AppFrame(resourcesProvider, toolbar, space);
+    }
 
     @Test
     @DisabledIfEnvironmentVariable(named = "ABACUS_TEST_HEADLESS", matches = "1")
     void shouldStartAppFrame() {
         // given
-        var evn = System.getenv().entrySet().stream().map(e -> e.getKey() + "=" + e.getValue()).collect(joining("\n"));
-        System.out.println(evn);
         when(resourcesProvider.getIcon("abacus.png")).thenReturn(new ImageIcon());
 
         // when
