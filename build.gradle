@@ -46,6 +46,8 @@ tasks.withType(JavaCompile) {
 tasks.withType(Test) {
     useJUnitPlatform()
     jvmArgs += "--enable-preview"
+    testLogging.showStandardStreams = true
+    testLogging.exceptionFormat = 'full'
 }
 
 tasks.withType(JavaExec) {
