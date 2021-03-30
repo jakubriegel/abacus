@@ -32,7 +32,7 @@ class AppFrameTest extends UITest {
     private final AppFrame appFrame = new AppFrame(resourcesProvider, toolbar, space);
 
     @Test
-    @DisabledIfEnvironmentVariable(named = "ABACUS_TEST_HEADLESS", matches = "true")
+    @DisabledIfEnvironmentVariable(named = "ABACUS_TEST_HEADLESS", matches = "1")
     void shouldStartAppFrame() {
         // given
         when(resourcesProvider.getIcon("abacus.png")).thenReturn(new ImageIcon());
@@ -44,7 +44,7 @@ class AppFrameTest extends UITest {
         verify(resourcesProvider).getIcon("abacus.png");
 
         // and
-        assertEquals(new Dimension(1200, 8010), appFrame.getSize());
+        assertEquals(new Dimension(1200, 800), appFrame.getSize());
         assertEquals(new Dimension(600, 120), appFrame.getMinimumSize());
         assertEquals(new Dimension(Integer.MAX_VALUE, Integer.MAX_VALUE), appFrame.getMaximumSize());
         assertHasBoxLayout(appFrame.getContentPane(), Y_AXIS);
