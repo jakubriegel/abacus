@@ -1,5 +1,6 @@
 package eu.jrie.abacus.core.domain.formula.impl.math.basic;
 
+import eu.jrie.abacus.core.domain.formula.impl.math.infra.MathFormulaTest;
 import org.junit.jupiter.api.DynamicTest;
 import org.junit.jupiter.api.TestFactory;
 

@@ -1,4 +1,4 @@
-package eu.jrie.abacus.core.domain.formula.impl.math.basic;
+package eu.jrie.abacus.core.domain.formula.impl.math.infra;
 
 import eu.jrie.abacus.core.domain.expression.NumberValue;
 import eu.jrie.abacus.core.domain.formula.ArgumentValueSupplier;
@@ -17,12 +17,12 @@ import static org.junit.jupiter.api.Assertions.assertEquals;
 import static org.junit.jupiter.api.Assertions.assertTrue;
 import static org.junit.jupiter.api.DynamicTest.dynamicTest;
 
-abstract class MathFormulaTest {
-    protected static record TestCase (
+public abstract class MathFormulaTest {
+    public static record TestCase (
             List<String> given,
             String expected
     ) {
-        TestCase(String given, String expected) {
+        public TestCase(String given, String expected) {
             this(singletonList(given), expected);
         }
     }
