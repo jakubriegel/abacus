@@ -9,7 +9,7 @@ import java.util.List;
 import static java.util.Collections.emptyList;
 
 public abstract class FormulaImplementation {
-    protected String getName() {
+    public String getName() {
         return getClass().getSimpleName()
                 .toLowerCase();
     }

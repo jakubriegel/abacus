@@ -57,7 +57,7 @@ class FormulaParserTest {
     private static FormulaImplementation formula(List<Class<? extends Expression>> argTypes, Function<List<ArgumentValueSupplier>, Value> action) {
         return new FormulaImplementation() {
             @Override
-            protected String getName() { return FORMULA_NAME; }
+            public String getName() { return FORMULA_NAME; }
             @Override
             public List<Class<? extends Expression>> getArgumentTypes() { return argTypes; }
             @Override
