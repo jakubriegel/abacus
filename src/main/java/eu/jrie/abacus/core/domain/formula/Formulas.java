@@ -10,6 +10,7 @@ import eu.jrie.abacus.core.domain.formula.impl.math.basic.Mod;
 import eu.jrie.abacus.core.domain.formula.impl.math.basic.Multiply;
 import eu.jrie.abacus.core.domain.formula.impl.math.basic.Subtract;
 import eu.jrie.abacus.core.domain.formula.impl.math.stats.Max;
+import eu.jrie.abacus.core.domain.formula.impl.math.stats.Min;
 
 import java.util.AbstractMap.SimpleImmutableEntry;
 import java.util.List;
@@ -37,7 +38,8 @@ public abstract class Formulas {
                 buildFormula(new Div()),
                 buildFormula(new Floor()),
                 buildFormula(new Ceil()),
-                buildFormula(new Max())
+                buildFormula(new Max()),
+                buildFormula(new Min())
         ).collect(toUnmodifiableMap(Entry::getKey, Entry::getValue));
     }
 
