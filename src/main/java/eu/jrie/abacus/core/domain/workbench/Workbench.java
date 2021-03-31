@@ -15,9 +15,13 @@ import static eu.jrie.abacus.lang.domain.parser.ParserFactory.buildParser;
 
 public class Workbench {
 
-    private final CellManager cellManager = new CellManager();
-    private final FormulaManager formulaManager = new FormulaManager();
-    private final Parser parser = buildParser(new WorkbenchContext(cellManager, formulaManager));
+    private final CellManager cellManager;
+    private final Parser parser;
+
+    public Workbench(CellManager cellManager, FormulaManager formulaManager) {
+        this.cellManager = cellManager;
+        this.parser = buildParser(new WorkbenchContext(cellManager, formulaManager));
+    }
 
     public Cell getCell(Position position) {
         return cellManager.getCell(position);

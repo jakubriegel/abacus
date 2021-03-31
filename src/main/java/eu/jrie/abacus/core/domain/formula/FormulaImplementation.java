@@ -9,7 +9,10 @@ import java.util.List;
 import static java.util.Collections.emptyList;
 
 public abstract class FormulaImplementation {
-    protected abstract String getName();
+    protected String getName() {
+        return getClass().getSimpleName()
+                .toLowerCase();
+    }
 
     public boolean isVararg() {
         return false;

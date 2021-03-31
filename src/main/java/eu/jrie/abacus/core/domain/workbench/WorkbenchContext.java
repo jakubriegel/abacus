@@ -24,6 +24,6 @@ public class WorkbenchContext {
     }
 
     public List<FormulaImplementation> findFormulasDefinition(String name) {
-        return formulaManager.findDefinitions(name);
+        return formulaManager.findImplementations(name);
     }
 }
