@@ -1,4 +1,4 @@
-package eu.jrie.abacus.lang.domain.parser;
+package eu.jrie.abacus.lang.domain.parser.argument;
 
 import eu.jrie.abacus.core.domain.expression.NumberValue;
 import org.junit.jupiter.api.Test;

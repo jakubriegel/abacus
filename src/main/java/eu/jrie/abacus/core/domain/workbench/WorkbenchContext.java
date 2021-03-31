@@ -3,7 +3,7 @@ package eu.jrie.abacus.core.domain.workbench;
 import eu.jrie.abacus.core.domain.cell.CellManager;
 import eu.jrie.abacus.core.domain.cell.Position;
 import eu.jrie.abacus.core.domain.expression.Value;
-import eu.jrie.abacus.core.domain.formula.FormulaDefinition;
+import eu.jrie.abacus.core.domain.formula.FormulaImplementation;
 import eu.jrie.abacus.core.domain.formula.FormulaManager;
 
 import java.util.List;
@@ -23,7 +23,7 @@ public class WorkbenchContext {
                 .getValue();
     }
 
-    public List<FormulaDefinition> findFormulasDefinition(String name) {
+    public List<FormulaImplementation> findFormulasDefinition(String name) {
         return formulaManager.findDefinitions(name);
     }
 }

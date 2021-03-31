@@ -1,4 +1,4 @@
-package eu.jrie.abacus.lang.domain.parser;
+package eu.jrie.abacus.lang.domain.parser.argument;
 
 import eu.jrie.abacus.core.domain.cell.Position;
 import eu.jrie.abacus.core.domain.formula.ArgumentValueSupplier;
@@ -8,7 +8,7 @@ import java.util.regex.Pattern;
 
 import static java.lang.Integer.parseInt;
 
-class CellReferenceResolver extends ArgumentResolver {
+public class CellReferenceResolver extends ArgumentResolver {
 
     private static final Pattern columnPattern = Pattern.compile("^[A-Z]+");
     private static final Pattern rowPattern = Pattern.compile("[0-9]+$");

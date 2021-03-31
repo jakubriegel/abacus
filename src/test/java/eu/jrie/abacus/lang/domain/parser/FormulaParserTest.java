@@ -5,18 +5,24 @@ import eu.jrie.abacus.core.domain.expression.NumberValue;
 import eu.jrie.abacus.core.domain.expression.TextValue;
 import eu.jrie.abacus.core.domain.expression.Value;
 import eu.jrie.abacus.core.domain.formula.ArgumentValueSupplier;
-import eu.jrie.abacus.core.domain.formula.FormulaDefinition;
+import eu.jrie.abacus.core.domain.formula.FormulaImplementation;
 import eu.jrie.abacus.core.domain.workbench.WorkbenchContext;
+import eu.jrie.abacus.lang.domain.exception.InvalidArgumentTypeException;
 import eu.jrie.abacus.lang.domain.exception.InvalidInputException;
 import eu.jrie.abacus.lang.domain.grammar.Token;
+import eu.jrie.abacus.lang.domain.grammar.TokenMatch;
+import eu.jrie.abacus.lang.domain.parser.argument.ArgumentParser;
 import org.junit.jupiter.api.DynamicTest;
 import org.junit.jupiter.api.TestFactory;
 import org.junit.jupiter.params.ParameterizedTest;
 import org.junit.jupiter.params.provider.ValueSource;
+import org.mockito.ArgumentMatcher;
 
 import java.util.EnumSet;
 import java.util.LinkedList;
 import java.util.List;
+import java.util.Objects;
+import java.util.function.Function;
 import java.util.stream.Stream;
 
 import static eu.jrie.abacus.lang.domain.grammar.Token.CELL_REFERENCE;
@@ -31,11 +37,13 @@ import static org.junit.jupiter.api.Assertions.assertEquals;
 import static org.junit.jupiter.api.Assertions.assertIterableEquals;
 import static org.junit.jupiter.api.Assertions.assertTrue;
 import static org.junit.jupiter.api.DynamicTest.dynamicTest;
+import static org.mockito.ArgumentMatchers.any;
+import static org.mockito.ArgumentMatchers.argThat;
+import static org.mockito.ArgumentMatchers.eq;
 import static org.mockito.Mockito.atLeast;
 import static org.mockito.Mockito.mock;
 import static org.mockito.Mockito.reset;
 import static org.mockito.Mockito.verify;
-import static org.mockito.Mockito.verifyNoInteractions;
 import static org.mockito.Mockito.when;
 
 class FormulaParserTest {
@@ -45,107 +53,58 @@ class FormulaParserTest {
     private static final String NUMBER_ARG_TEXT = "1";
     private static final String TEXT_ARG_TEXT = "'abc '";
 
-    private static final List<FormulaDefinition> noArgDefinitions = singletonList(
-            new FormulaDefinition(
-                    FORMULA_NAME,
-                    emptyList(),
-                    (context, args) -> {
-                        assertEquals(0, args.size());
-                        return new TextValue("ok");
-                    })
-    );
+    private static FormulaImplementation formula(List<Class<? extends Expression>> argTypes, Function<List<ArgumentValueSupplier>, Value> action) {
+        return new FormulaImplementation() {
+            @Override
+            protected String getName() { return FORMULA_NAME; }
+            @Override
+            public List<Class<? extends Expression>> getArgumentTypes() { return argTypes; }
+            @Override
+            public Value run(WorkbenchContext context, List<ArgumentValueSupplier> args) { return action.apply(args); }
+        };
+    }
 
-    private static final List<FormulaDefinition> singleArgDefinitions = List.of(
-            new FormulaDefinition(
-                    FORMULA_NAME,
-                    singletonList(NumberValue.class),
-                    (context, args) -> {
-                        assertEquals(1, args.size());
-                        var arg = args.get(0).get(context);
-                        assertTrue(arg instanceof NumberValue);
-                        return arg;
-                    }),
-            new FormulaDefinition(
-                    FORMULA_NAME,
-                    singletonList(TextValue.class),
-                    (context, args) -> {
-                        assertEquals(1, args.size());
-                        var arg = args.get(0).get(context);
-                        assertTrue(arg instanceof TextValue);
-                        return arg;
-                    })
-    );
+    private static final FormulaImplementation NO_ARG_FORMULA = formula(emptyList(), args -> {
+        assertEquals(0, args.size());
+        return new TextValue("ok");
+    });
 
-    private static final List<FormulaDefinition> manyArgsDefinitions = List.of(
-            new FormulaDefinition(
-                    FORMULA_NAME,
-                    List.of(NumberValue.class, NumberValue.class),
-                    (context, args) -> {
-                        assertEquals(2, args.size());
-                        var a = args.get(0).get(context);
-                        assertTrue(a instanceof NumberValue);
-                        var b = args.get(1).get(context);
-                        assertTrue(b instanceof NumberValue);
-                        return new NumberValue(((NumberValue) a).value() + ((NumberValue) b).value());
-                    }),
-            new FormulaDefinition(
-                    FORMULA_NAME,
-                    List.of(TextValue.class, TextValue.class),
-                    (context, args) -> {
-                        assertEquals(2, args.size());
-                        var a = args.get(0).get(context);
-                        assertTrue(a instanceof TextValue);
-                        var b = args.get(1).get(context);
-                        assertTrue(b instanceof TextValue);
-                        return new TextValue(a.getAsString() + b.getAsString());
-                    }),
-            new FormulaDefinition(
-                    FORMULA_NAME,
-                    List.of(NumberValue.class, TextValue.class),
-                    (context, args) -> {
-                        assertEquals(2, args.size());
-                        var a = args.get(0).get(context);
-                        assertTrue(a instanceof NumberValue);
-                        var b = args.get(1).get(context);
-                        assertTrue(b instanceof TextValue);
-                        return new TextValue(a.getAsString() + b.getAsString());
-                    }),
-            new FormulaDefinition(
-                    FORMULA_NAME,
-                    List.of(TextValue.class, NumberValue.class),
-                    (context, args) -> {
-                        assertEquals(2, args.size());
-                        var a = args.get(0).get(context);
-                        assertTrue(a instanceof TextValue);
-                        var b = args.get(1).get(context);
-                        assertTrue(b instanceof NumberValue);
-                        return new TextValue(a.getAsString() + b.getAsString());
-                    })
+    private static final FormulaImplementation SINGLE_NUMBER_ARG_FORMULA = formula(singletonList(NumberValue.class), args -> {
+        assertEquals(1, args.size());
+        var arg = args.get(0).get(null);
+        assertTrue(arg instanceof NumberValue);
+        return arg;
+    });
+
+    private static final FormulaImplementation SINGLE_TEXT_ARG_FORMULA = formula(singletonList(TextValue.class), args -> {
+        assertEquals(1, args.size());
+        var arg = args.get(0).get(null);
+        assertTrue(arg instanceof TextValue);
+        return arg;
+    });
+
+    private static final List<FormulaImplementation> singleArgFormulas = List.of(
+            SINGLE_NUMBER_ARG_FORMULA, SINGLE_TEXT_ARG_FORMULA
     );
 
     private final WorkbenchContext context = mock(WorkbenchContext.class);
-    private final CellReferenceResolver cellReferenceResolver = mock(CellReferenceResolver.class);
-    private final TextValueResolver textValueResolver = mock(TextValueResolver.class);
-    private final NumberValueResolver numberValueResolver = mock(NumberValueResolver.class);
+    private final ArgumentParser argumentParser = mock(ArgumentParser.class);
 
-    private final FormulaParser parser = new FormulaParser(
-            context, cellReferenceResolver, textValueResolver, numberValueResolver
-    );
+    private final FormulaParser parser = new FormulaParser(context, argumentParser);
 
     @ParameterizedTest(name = "should match no arg formula - \"{0}\"")
     @ValueSource(strings = {"action()", "action ( ) "})
     void shouldMatchNoArgFormula(String formulaText) throws InvalidInputException {
         // given
-        when(context.findFormulasDefinition(FORMULA_NAME)).thenReturn(noArgDefinitions);
+        when(context.findFormulasDefinition(FORMULA_NAME)).thenReturn(singletonList(NO_ARG_FORMULA));
+        when(argumentParser.parseArgs(NO_ARG_FORMULA, emptyList())).thenReturn(emptyList());
 
         // when
         var result = parser.parse(formulaText);
 
         // then
         verify(context).findFormulasDefinition(FORMULA_NAME);
-        verifyNoInteractions(cellReferenceResolver);
-        verifyNoInteractions(textValueResolver);
-        verifyNoInteractions(numberValueResolver);
+        verify(argumentParser).parseArgs(NO_ARG_FORMULA, emptyList());
 
         // and
         assertEquals(FORMULA_NAME, result.functionName());
@@ -157,20 +116,19 @@ class FormulaParserTest {
     @ValueSource(strings = {"action(1)", "action ( 1 ) "})
     void shouldMatchSingleNumberArgFormula(String formulaText) throws InvalidInputException {
         // given
+        var matchedArg = new TokenMatchMatcher(NUMBER_VALUE, NUMBER_ARG_TEXT);
         var expectedArg = new NumberValue(1);
 
         // and
-        when(context.findFormulasDefinition(FORMULA_NAME)).thenReturn(singleArgDefinitions);
-        when(numberValueResolver.resolve(NUMBER_ARG_TEXT)).thenReturn(c -> expectedArg);
+        when(context.findFormulasDefinition(FORMULA_NAME)).thenReturn(singleArgFormulas);
+        when(argumentParser.parseArgs(eq(SINGLE_NUMBER_ARG_FORMULA), matches(matchedArg))).thenReturn(singletonList(c -> expectedArg));
 
         // when
         var result = parser.parse(formulaText);
 
         // then
         verify(context).findFormulasDefinition(FORMULA_NAME);
-        verifyNoInteractions(cellReferenceResolver);
-        verifyNoInteractions(textValueResolver);
-        verify(numberValueResolver).resolve(NUMBER_ARG_TEXT);
+        verify(argumentParser).parseArgs(eq(SINGLE_NUMBER_ARG_FORMULA), matches(matchedArg));
 
         // and
         assertEquals(FORMULA_NAME, result.functionName());
@@ -182,20 +140,20 @@ class FormulaParserTest {
     @ValueSource(strings = {"action('abc ')", "action ( 'abc ' ) "})
     void shouldMatchSingleTextArgFormula(String formulaText) throws InvalidInputException {
         // given
+        var matchedArg = new TokenMatchMatcher(TEXT_VALUE, TEXT_ARG_TEXT);
         var expectedArg = new TextValue("abc ");
 
         // and
-        when(context.findFormulasDefinition(FORMULA_NAME)).thenReturn(singleArgDefinitions);
-        when(textValueResolver.resolve(TEXT_ARG_TEXT)).thenReturn(c -> expectedArg);
+        when(context.findFormulasDefinition(FORMULA_NAME)).thenReturn(singleArgFormulas);
+        when(argumentParser.parseArgs(eq(SINGLE_NUMBER_ARG_FORMULA), any())).thenThrow(new InvalidArgumentTypeException());
+        when(argumentParser.parseArgs(eq(SINGLE_TEXT_ARG_FORMULA), matches(matchedArg))).thenReturn(singletonList(c -> expectedArg));
 
         // when
         var result = parser.parse(formulaText);
 
         // then
         verify(context, atLeast(1)).findFormulasDefinition(FORMULA_NAME);
-        verifyNoInteractions(cellReferenceResolver);
-        verify(textValueResolver).resolve(TEXT_ARG_TEXT);
-        verifyNoInteractions(numberValueResolver);
+        verify(argumentParser).parseArgs(eq(SINGLE_TEXT_ARG_FORMULA), matches(matchedArg));
 
         // and
         assertEquals(FORMULA_NAME, result.functionName());
@@ -207,111 +165,24 @@ class FormulaParserTest {
     @ValueSource(strings = {"action(C1)", "action ( C1 ) "})
     void shouldMatchSingleCellReferenceArgFormula(String formulaText) throws InvalidInputException {
         // given
+        var matchedArg = new TokenMatchMatcher(CELL_REFERENCE, CELL_REFERENCE_ARG_TEXT);
         var expectedArg = new NumberValue(1);
 
         // and
-        when(context.findFormulasDefinition(FORMULA_NAME)).thenReturn(singleArgDefinitions);
-        when(cellReferenceResolver.resolve(CELL_REFERENCE_ARG_TEXT)).thenReturn(c -> expectedArg);
+        when(context.findFormulasDefinition(FORMULA_NAME)).thenReturn(singleArgFormulas);
+        when(argumentParser.parseArgs(eq(SINGLE_NUMBER_ARG_FORMULA), matches(matchedArg))).thenReturn(singletonList(c -> expectedArg));
 
         // when
         var result = parser.parse(formulaText);
 
         // then
         verify(context).findFormulasDefinition(FORMULA_NAME);
-        verify(cellReferenceResolver).resolve(CELL_REFERENCE_ARG_TEXT);
-        verifyNoInteractions(textValueResolver);
-        verifyNoInteractions(numberValueResolver);
+        verify(argumentParser).parseArgs(eq(SINGLE_NUMBER_ARG_FORMULA), matches(matchedArg));
 
         // and
         assertEquals(FORMULA_NAME, result.functionName());
         assertArgumentsEquals(singletonList(expectedArg), result.arguments());
         assertEquals(expectedArg, result.action().get());
-    }
-
-    @ParameterizedTest(name = "should match many number args formula - \"{0}\"")
-    @ValueSource(strings = {"action(1,2)", "action ( 1 , 2 ) "})
-    void shouldMatchManyNumberArgsFormula(String formulaText) throws InvalidInputException {
-        // given
-        var expectedArg1 = new NumberValue(1);
-        var expectedArg2 = new NumberValue(2);
-        var expectedResult = new NumberValue(3);
-
-        // and
-        when(context.findFormulasDefinition(FORMULA_NAME)).thenReturn(manyArgsDefinitions);
-        when(numberValueResolver.resolve(NUMBER_ARG_TEXT)).thenReturn(c -> expectedArg1);
-        when(numberValueResolver.resolve("2")).thenReturn(c -> expectedArg2);
-
-        // when
-        var result = parser.parse(formulaText);
-
-        // then
-        verify(context).findFormulasDefinition(FORMULA_NAME);
-        verifyNoInteractions(cellReferenceResolver);
-        verifyNoInteractions(textValueResolver);
-        verify(numberValueResolver).resolve(NUMBER_ARG_TEXT);
-        verify(numberValueResolver).resolve("2");
-
-        // and
-        assertEquals(FORMULA_NAME, result.functionName());
-        assertArgumentsEquals(List.of(expectedArg1, expectedArg2), result.arguments());
-        assertEquals(expectedResult, result.action().get());
-    }
-
-    @ParameterizedTest(name = "should match many text args formula - \"{0}\"")
-    @ValueSource(strings = {"action('abc ','xyz')", "action ( 'abc ' , 'xyz' ) "})
-    void shouldMatchManyTextArgsFormula(String formulaText) throws InvalidInputException {
-        // given
-        var expectedArg1 = new TextValue("abc ");
-        var expectedArg2 = new TextValue("xyz");
-        var expectedResult = new TextValue("abc xyz");
-
-        // and
-        when(context.findFormulasDefinition(FORMULA_NAME)).thenReturn(manyArgsDefinitions);
-        when(textValueResolver.resolve(TEXT_ARG_TEXT)).thenReturn(c -> expectedArg1);
-        when(textValueResolver.resolve("'xyz'")).thenReturn(c -> expectedArg2);
-
-        // when
-        var result = parser.parse(formulaText);
-
-        // then
-        verify(context).findFormulasDefinition(FORMULA_NAME);
-        verifyNoInteractions(cellReferenceResolver);
-        verify(textValueResolver).resolve(TEXT_ARG_TEXT);
-        verify(textValueResolver).resolve("'xyz'");
-        verifyNoInteractions(numberValueResolver);
-
-        // and
-        assertEquals(FORMULA_NAME, result.functionName());
-        assertArgumentsEquals(List.of(expectedArg1, expectedArg2), result.arguments());
-        assertEquals(expectedResult, result.action().get());
-    }
-
-    @ParameterizedTest(name = "should match many cell reference args formula - \"{0}\"")
-    @ValueSource(strings = {"action(C1,D2)", "action ( C1 , D2 ) "})
-    void shouldMatchManyCellReferenceArgsFormula(String formulaText) throws InvalidInputException {
-        // given
-        var expectedArg1 = new NumberValue(1);
-        var expectedArg2 = new NumberValue(2);
-        var expectedResult = new NumberValue(3);
-
-        // and
-        when(context.findFormulasDefinition(FORMULA_NAME)).thenReturn(manyArgsDefinitions);
-        when(cellReferenceResolver.resolve(CELL_REFERENCE_ARG_TEXT)).thenReturn(c -> expectedArg1);
-        when(cellReferenceResolver.resolve("D2")).thenReturn(c -> expectedArg2);
-
-        // when
-        var result = parser.parse(formulaText);
-
-        // then
-        verify(context).findFormulasDefinition(FORMULA_NAME);
-        verify(cellReferenceResolver).resolve(CELL_REFERENCE_ARG_TEXT);
-        verifyNoInteractions(textValueResolver);
-        verifyNoInteractions(numberValueResolver);
-
-        // and
-        assertEquals(FORMULA_NAME, result.functionName());
-        assertArgumentsEquals(List.of(expectedArg1, expectedArg2), result.arguments());
-        assertEquals(expectedResult, result.action().get());
     }
 
     @TestFactory
@@ -335,7 +206,7 @@ class FormulaParserTest {
                             format("should match multi arg formula - '%s'", formulaText),
                             () -> {
                                 // when
-                                var formulaDefinition = formulaDefinition(permutation);
+                                var impl = formulaImplementation(permutation);
                                 var expectedArg1 = expectedArg(permutation.get(0));
                                 var expectedArg2 = expectedArg(permutation.get(1));
                                 var expectedArg3 = expectedArg(permutation.get(2));
@@ -343,26 +214,41 @@ class FormulaParserTest {
                                         .map(Value::getAsString)
                                         .collect(joining(" "));
 
+                                var matchedArgs = permutation.stream()
+                                        .map(token -> {
+                                            var text = switch (token) {
+                                                case CELL_REFERENCE -> CELL_REFERENCE_ARG_TEXT;
+                                                case NUMBER_VALUE -> NUMBER_ARG_TEXT;
+                                                case TEXT_VALUE -> TEXT_ARG_TEXT;
+                                                default -> throw new IllegalStateException();
+                                            };
+                                            return new TokenMatchMatcher(token, text);
+                                        })
+                                        .collect(toUnmodifiableList());
+
+                                var parsedArgs = permutation.stream()
+                                        .map(token -> {
+                                            @SuppressWarnings("UnnecessaryLocalVariable")
+                                            ArgumentValueSupplier supplier = switch (token) {
+                                                case CELL_REFERENCE, NUMBER_VALUE -> c -> new NumberValue(1);
+                                                case TEXT_VALUE -> c -> new TextValue("abc ");
+                                                default -> throw new IllegalStateException();
+                                            };
+                                            return supplier;
+                                        })
+                                        .collect(toUnmodifiableList());
+
+
                                 // and
-                                when(context.findFormulasDefinition(FORMULA_NAME)).thenReturn(formulaDefinition);
-                                when(cellReferenceResolver.resolve(CELL_REFERENCE_ARG_TEXT)).thenReturn(c -> new NumberValue(1));
-                                when(textValueResolver.resolve(TEXT_ARG_TEXT)).thenReturn(c -> new TextValue("abc "));
-                                when(numberValueResolver.resolve(NUMBER_ARG_TEXT)).thenReturn(c -> new NumberValue(1));
+                                when(context.findFormulasDefinition(FORMULA_NAME)).thenReturn(singletonList(impl));
+                                when(argumentParser.parseArgs(eq(impl), matches(matchedArgs))).thenReturn(parsedArgs);
 
                                 // when
                                 var result = parser.parse(formulaText);
 
                                 // then
                                 verify(context).findFormulasDefinition(FORMULA_NAME);
-                                if (permutation.contains(CELL_REFERENCE)) {
-                                    verify(cellReferenceResolver, atLeast(1)).resolve(CELL_REFERENCE_ARG_TEXT);
-                                }
-                                if (permutation.contains(TEXT_VALUE)) {
-                                    verify(textValueResolver, atLeast(1)).resolve(TEXT_ARG_TEXT);
-                                }
-                                if (permutation.contains(NUMBER_VALUE)) {
-                                    verify(numberValueResolver, atLeast(1)).resolve(NUMBER_ARG_TEXT);
-                                }
+                                verify(argumentParser).parseArgs(eq(impl), matches(matchedArgs));
 
                                 // and
                                 assertEquals(FORMULA_NAME, result.functionName());
@@ -370,7 +256,7 @@ class FormulaParserTest {
                                 assertEquals(expectedResult, result.action().get().getAsString());
 
                                 // cleanup
-                                reset(context, cellReferenceResolver, textValueResolver, numberValueResolver);
+                                reset(context, argumentParser);
                             }
                     );
                 });
@@ -400,7 +286,7 @@ class FormulaParserTest {
         };
     }
 
-    private static List<FormulaDefinition> formulaDefinition(List<Token> argument) {
+    private static FormulaImplementation formulaImplementation(List<Token> argument) {
         List<Class<? extends Expression>> argTypes = argument.stream()
                 .map(arg -> switch (arg) {
                     case CELL_REFERENCE, NUMBER_VALUE -> NumberValue.class;
@@ -409,18 +295,46 @@ class FormulaParserTest {
                 })
                 .collect(toUnmodifiableList());
 
-        return singletonList(
-                new FormulaDefinition(
-                        FORMULA_NAME,
-                        argTypes,
-                        (context, args) -> {
-                            assertEquals(3, args.size());
-                            var text = args.stream()
-                                    .map(arg -> arg.get(context))
-                                    .map(Value::getAsString)
-                                    .collect(joining(" "));
-                            return new TextValue(text);
-                        })
-        );
+        return formula(argTypes, args -> {
+            assertEquals(3, args.size());
+            var text = args.stream()
+                    .map(arg -> arg.get(null))
+                    .map(Value::getAsString)
+                    .collect(joining(" "));
+            return new TextValue(text);
+        });
+    }
+
+    private static record TokenMatchMatcher (
+            Token token,
+            String match
+    ) {}
+
+    private static record TokenMatchListMatcher(
+            List<TokenMatchMatcher> matchers
+    ) implements ArgumentMatcher<List<TokenMatch>> {
+        @Override
+        public boolean matches(List<TokenMatch> other) {
+            if (other.size() != matchers.size()) {
+                return false;
+            } else {
+                for (int i = 0; i < matchers.size(); i++) {
+                    var expected = matchers.get(i);
+                    var match = other.get(i);
+                    var equal = Objects.equals(expected.token(), match.token())
+                            && Objects.equals(expected.match, match.match());
+                    if (!equal) return false;
+                }
+            }
+            return true;
+        }
+    }
+
+    private static List<TokenMatch> matches(TokenMatchMatcher matcher) {
+        return matches(singletonList(matcher));
+    }
+
+    private static List<TokenMatch> matches(List<TokenMatchMatcher> matchers) {
+        return argThat(new TokenMatchListMatcher(matchers));
     }
 }

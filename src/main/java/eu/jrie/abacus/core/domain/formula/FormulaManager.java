@@ -1,28 +1,57 @@
 package eu.jrie.abacus.core.domain.formula;
 
-import eu.jrie.abacus.core.domain.expression.NumberValue;
-import eu.jrie.abacus.core.domain.expression.TextValue;
+import eu.jrie.abacus.core.domain.formula.impl.math.Abs;
+import eu.jrie.abacus.core.domain.formula.impl.math.Add;
+import eu.jrie.abacus.core.domain.formula.impl.math.Max;
+import eu.jrie.abacus.core.domain.formula.impl.math.Multiply;
+import eu.jrie.abacus.core.domain.formula.impl.math.Subtract;
 
+import java.util.AbstractMap.SimpleImmutableEntry;
 import java.util.List;
 import java.util.Map;
+import java.util.Map.Entry;
+import java.util.stream.Stream;
 
-import static java.lang.String.format;
+import static java.util.Arrays.asList;
+import static java.util.function.Predicate.isEqual;
+import static java.util.stream.Collectors.toMap;
+import static java.util.stream.Collectors.toSet;
 
 public class FormulaManager {
-    final Map<String, List<FormulaDefinition>> formulas = Map.of(
-            "cool", List.of(
-                    new FormulaDefinition(
-                            "cool",
-                            List.of(TextValue.class, NumberValue.class),
-                            (context, args) -> {
-                                var text = (TextValue) args.get(0).get(context);
-                                var number = (NumberValue) args.get(1).get(context);
-                                System.out.println("in cool " + args);
-                                return new TextValue(format("%s - %s", text.value(), number.value()));
-                            })
-            ));
 
-    public List<FormulaDefinition> findDefinitions(String name) {
+    private static final Map<String, List<FormulaImplementation>> formulas = buildFormulas();
+
+    private static Map<String, List<FormulaImplementation>> buildFormulas() {
+        return Stream.of(
+                buildFormula(new Add()),
+                buildFormula(new Subtract()),
+                buildFormula(new Abs()),
+                buildFormula(new Max()),
+                buildFormula(new Multiply())
+        ).collect(toMap(Entry::getKey, Entry::getValue));
+    }
+
+    private static Entry<String, List<FormulaImplementation>> buildFormula(FormulaImplementation...impl) {
+        return buildFormula(asList(impl));
+    }
+
+    private static Entry<String, List<FormulaImplementation>> buildFormula(List<FormulaImplementation> impls) {
+        final var name = impls.get(0).getName();
+
+        assert impls.stream()
+                .map(FormulaImplementation::getName)
+                .allMatch(isEqual(name));
+
+        assert impls.size() == impls.stream()
+                .map(FormulaImplementation::getArgumentTypes)
+                .collect(toSet())
+                .size();
+
+        return new SimpleImmutableEntry<>(name, impls);
+    }
+
+    public List<FormulaImplementation> findDefinitions(String name) {
         return formulas.get(name);
     }
+
 }
