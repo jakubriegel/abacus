@@ -1,5 +1,7 @@
 package eu.jrie.abacus.ui.domain;
 
+import eu.jrie.abacus.core.domain.cell.CellManager;
+import eu.jrie.abacus.core.domain.formula.FormulaManager;
 import eu.jrie.abacus.core.domain.workbench.Workbench;
 import eu.jrie.abacus.ui.domain.components.space.Space;
 import eu.jrie.abacus.ui.domain.components.space.UtilsMenu;
@@ -17,9 +19,11 @@ import eu.jrie.abacus.ui.domain.workbench.WorkbenchFacade;
 import eu.jrie.abacus.ui.infra.ResourcesProvider;
 import eu.jrie.abacus.ui.infra.event.EventBus;
 
+import static eu.jrie.abacus.core.domain.formula.Formulas.buildFormulas;
+
 public abstract class AppFrameFactory {
 
-    private static final Workbench workbench = new Workbench();
+    private static final Workbench workbench = buildWorkbench();
     private static final EventBus eventBus = new EventBus();
     private static final WorkbenchFacade workbenchFacade = new WorkbenchFacade(workbench, eventBus);
     private static final ResourcesProvider resourcesProvider = new ResourcesProvider();
@@ -30,6 +34,13 @@ public abstract class AppFrameFactory {
         var toolbar = buildToolbar();
         var space = buildSpace();
         return new AppFrame(resourcesProvider, toolbar, space);
+    }
+
+    private static Workbench buildWorkbench() {
+        var cellManager = new CellManager();
+        var formulas = buildFormulas();
+        var formulaManager = new FormulaManager(formulas);
+        return new Workbench(cellManager, formulaManager);
     }
 
     private static Toolbar buildToolbar() {
