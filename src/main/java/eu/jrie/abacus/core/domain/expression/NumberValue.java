@@ -15,6 +15,7 @@ public final record NumberValue(BigDecimal value) implements Value {
 
     @Override
     public String getAsString() {
-        return String.valueOf(value);
+        return value.stripTrailingZeros()
+                .toString();
     }
 }

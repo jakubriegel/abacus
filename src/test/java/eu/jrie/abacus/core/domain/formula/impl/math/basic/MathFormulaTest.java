@@ -14,6 +14,7 @@ import static java.util.Arrays.stream;
 import static java.util.Collections.singletonList;
 import static java.util.stream.Collectors.toUnmodifiableList;
 import static org.junit.jupiter.api.Assertions.assertEquals;
+import static org.junit.jupiter.api.Assertions.assertTrue;
 import static org.junit.jupiter.api.DynamicTest.dynamicTest;
 
 abstract class MathFormulaTest {
@@ -41,7 +42,9 @@ abstract class MathFormulaTest {
                     var result = formula.run(null, args);
 
                     // then
-                    assertEquals(new NumberValue(testCase.expected()), result);
+                    assertTrue(result instanceof NumberValue);
+                    var resultValue = ((NumberValue) result).value();
+                    assertEquals(testCase.expected(), resultValue.stripTrailingZeros().toString());
                 }));
     }
 }
