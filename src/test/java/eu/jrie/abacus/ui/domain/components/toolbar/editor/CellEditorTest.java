@@ -17,6 +17,7 @@ import org.mockito.ArgumentCaptor;
 
 import javax.swing.*;
 import java.awt.event.KeyListener;
+import java.math.BigDecimal;
 import java.util.List;
 import java.util.stream.Stream;
 
@@ -96,7 +97,7 @@ class CellEditorTest extends UITest {
                 ),
                 new TestCase(
                         "should register update cell editor on focus handler - for NumberValue",
-                        new Cell(position, false, "123", new NumberValue(123)),
+                        new Cell(position, false, "123", new NumberValue(new BigDecimal(123))),
                         "editor/round_looks_one_black_48dp.png"
                 ),
                 new TestCase(
@@ -145,7 +146,7 @@ class CellEditorTest extends UITest {
                 ),
                 new TestCase(
                         "should register update cell editor on update handler - for NumberValue",
-                        new Cell(position, false, "123", new NumberValue(123)),
+                        new Cell(position, false, "123", new NumberValue(new BigDecimal(123))),
                         "editor/round_looks_one_black_48dp.png"
                 ),
                 new TestCase(

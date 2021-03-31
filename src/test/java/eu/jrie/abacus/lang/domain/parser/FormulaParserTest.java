@@ -29,6 +29,7 @@ import static eu.jrie.abacus.lang.domain.grammar.Token.CELL_REFERENCE;
 import static eu.jrie.abacus.lang.domain.grammar.Token.NUMBER_VALUE;
 import static eu.jrie.abacus.lang.domain.grammar.Token.TEXT_VALUE;
 import static java.lang.String.format;
+import static java.math.BigDecimal.ONE;
 import static java.util.Collections.emptyList;
 import static java.util.Collections.singletonList;
 import static java.util.stream.Collectors.joining;
@@ -117,7 +118,7 @@ class FormulaParserTest {
     void shouldMatchSingleNumberArgFormula(String formulaText) throws InvalidInputException {
         // given
         var matchedArg = new TokenMatchMatcher(NUMBER_VALUE, NUMBER_ARG_TEXT);
-        var expectedArg = new NumberValue(1);
+        var expectedArg = new NumberValue(ONE);
 
         // and
         when(context.findFormulasDefinition(FORMULA_NAME)).thenReturn(singleArgFormulas);
@@ -166,7 +167,7 @@ class FormulaParserTest {
     void shouldMatchSingleCellReferenceArgFormula(String formulaText) throws InvalidInputException {
         // given
         var matchedArg = new TokenMatchMatcher(CELL_REFERENCE, CELL_REFERENCE_ARG_TEXT);
-        var expectedArg = new NumberValue(1);
+        var expectedArg = new NumberValue(ONE);
 
         // and
         when(context.findFormulasDefinition(FORMULA_NAME)).thenReturn(singleArgFormulas);
@@ -230,7 +231,7 @@ class FormulaParserTest {
                                         .map(token -> {
                                             @SuppressWarnings("UnnecessaryLocalVariable")
                                             ArgumentValueSupplier supplier = switch (token) {
-                                                case CELL_REFERENCE, NUMBER_VALUE -> c -> new NumberValue(1);
+                                                case CELL_REFERENCE, NUMBER_VALUE -> c -> new NumberValue(ONE);
                                                 case TEXT_VALUE -> c -> new TextValue("abc ");
                                                 default -> throw new IllegalStateException();
                                             };
@@ -280,7 +281,7 @@ class FormulaParserTest {
 
     private static Value expectedArg(Token token) {
         return switch (token) {
-            case CELL_REFERENCE, NUMBER_VALUE -> new NumberValue(1);
+            case CELL_REFERENCE, NUMBER_VALUE -> new NumberValue(ONE);
             case TEXT_VALUE -> new TextValue("abc ");
             default -> throw new IllegalStateException();
         };
