@@ -13,6 +13,10 @@ import eu.jrie.abacus.core.domain.formula.impl.math.stats.Max;
 import eu.jrie.abacus.core.domain.formula.impl.math.stats.Mean;
 import eu.jrie.abacus.core.domain.formula.impl.math.stats.Min;
 import eu.jrie.abacus.core.domain.formula.impl.math.stats.Std;
+import eu.jrie.abacus.core.domain.formula.impl.text.Length;
+import eu.jrie.abacus.core.domain.formula.impl.text.Lower;
+import eu.jrie.abacus.core.domain.formula.impl.text.Sub;
+import eu.jrie.abacus.core.domain.formula.impl.text.Upper;
 
 import java.util.AbstractMap.SimpleImmutableEntry;
 import java.util.List;
@@ -43,7 +47,11 @@ public abstract class Formulas {
                 buildFormula(new Max()),
                 buildFormula(new Min()),
                 buildFormula(new Mean()),
-                buildFormula(new Std())
+                buildFormula(new Std()),
+                buildFormula(new Length()),
+                buildFormula(new Upper()),
+                buildFormula(new Lower()),
+                buildFormula(new Sub())
         ).collect(toUnmodifiableMap(Entry::getKey, Entry::getValue));
     }
 

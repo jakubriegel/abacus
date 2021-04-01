@@ -1,15 +1,15 @@
 package eu.jrie.abacus.core.domain.formula.impl.math.basic;
 
-import eu.jrie.abacus.core.domain.formula.impl.math.infra.MathFormulaTest;
+import eu.jrie.abacus.core.domain.formula.impl.infra.FormulaImplTest;
 import org.junit.jupiter.api.DynamicTest;
 import org.junit.jupiter.api.TestFactory;
 
 import java.util.stream.Stream;
 
-class FloorTest extends MathFormulaTest {
+class FloorTest extends FormulaImplTest {
     @TestFactory
     Stream<DynamicTest> shouldCalculateFloor() {
-        return formulaTest(
+        return testNumberToNumber(
                 new Floor(),
                 "should calculate floor of ",
                 new TestCase("1", "1"),
