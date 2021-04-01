@@ -3,6 +3,7 @@ package eu.jrie.abacus.lang.domain.parser;
 import eu.jrie.abacus.core.domain.workbench.WorkbenchContext;
 import eu.jrie.abacus.lang.domain.parser.argument.ArgumentParser;
 import eu.jrie.abacus.lang.domain.parser.argument.CellReferenceResolver;
+import eu.jrie.abacus.lang.domain.parser.argument.LogicValueResolver;
 import eu.jrie.abacus.lang.domain.parser.argument.NumberValueResolver;
 import eu.jrie.abacus.lang.domain.parser.argument.TextValueResolver;
 
@@ -21,6 +22,7 @@ public abstract class ParserFactory {
         var cellReferenceResolver = new CellReferenceResolver();
         var textValueResolver = new TextValueResolver();
         var numberValueResolver = new NumberValueResolver();
-        return new ArgumentParser(cellReferenceResolver, textValueResolver, numberValueResolver);
+        var logicValueResolver = new LogicValueResolver();
+        return new ArgumentParser(cellReferenceResolver, textValueResolver, numberValueResolver, logicValueResolver);
     }
 }

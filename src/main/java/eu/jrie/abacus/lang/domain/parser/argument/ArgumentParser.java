@@ -1,6 +1,7 @@
 package eu.jrie.abacus.lang.domain.parser.argument;
 
 import eu.jrie.abacus.core.domain.expression.Expression;
+import eu.jrie.abacus.core.domain.expression.LogicValue;
 import eu.jrie.abacus.core.domain.expression.NumberValue;
 import eu.jrie.abacus.core.domain.expression.TextValue;
 import eu.jrie.abacus.core.domain.formula.ArgumentValueSupplier;
@@ -21,11 +22,13 @@ public class ArgumentParser {
     private final CellReferenceResolver cellReferenceResolver;
     private final TextValueResolver textValueResolver;
     private final NumberValueResolver numberValueResolver;
+    private final LogicValueResolver logicValueResolver;
 
-    public ArgumentParser(CellReferenceResolver cellReferenceResolver, TextValueResolver textValueResolver, NumberValueResolver numberValueResolver) {
+    public ArgumentParser(CellReferenceResolver cellReferenceResolver, TextValueResolver textValueResolver, NumberValueResolver numberValueResolver, LogicValueResolver logicValueResolver) {
         this.cellReferenceResolver = cellReferenceResolver;
         this.textValueResolver = textValueResolver;
         this.numberValueResolver = numberValueResolver;
+        this.logicValueResolver = logicValueResolver;
     }
 
     public List<ArgumentValueSupplier> parseArgs(FormulaImplementation impl, List<TokenMatch> givenArguments) throws InvalidArgumentTypeException, InvalidArgumentNumberException {
@@ -71,6 +74,7 @@ public class ArgumentParser {
             case CELL_REFERENCE -> cellReferenceResolver.resolve(arg.match());
             case TEXT_VALUE -> textValueResolver.resolve(arg.match());
             case NUMBER_VALUE -> numberValueResolver.resolve(arg.match());
+            case LOGIC_TRUE_VALUE, LOGIC_FALSE_VALUE -> logicValueResolver.resolve(arg.match());
             default -> throw new IllegalStateException("Unexpected token: " + arg.token());
         };
     }
@@ -85,6 +89,7 @@ public class ArgumentParser {
             case CELL_REFERENCE -> true;
             case TEXT_VALUE -> argType == TextValue.class;
             case NUMBER_VALUE -> argType == NumberValue.class;
+            case LOGIC_TRUE_VALUE, LOGIC_FALSE_VALUE -> argType == LogicValue.class;
             default -> throw new IllegalStateException("Unexpected token: " + argToken);
         };
     }

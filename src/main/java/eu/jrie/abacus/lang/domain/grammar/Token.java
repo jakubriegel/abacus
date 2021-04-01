@@ -12,6 +12,8 @@ public enum Token implements GrammarElement {
     CELL_REFERENCE("[A-Z]+[0-9]+"),
     TEXT_VALUE("'[^']*'"),
     NUMBER_VALUE("-?[0-9]+(\\.[0-9]+)*"),
+    LOGIC_TRUE_VALUE("true"),
+    LOGIC_FALSE_VALUE("false"),
 
     FUNCTION_ARGS_SEPARATOR(","),
     FUNCTION_ARGS_STOP("\\)");

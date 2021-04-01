@@ -21,6 +21,8 @@ import java.util.Set;
 
 import static eu.jrie.abacus.lang.domain.grammar.Token.CELL_REFERENCE;
 import static eu.jrie.abacus.lang.domain.grammar.Token.FUNCTION_NAME;
+import static eu.jrie.abacus.lang.domain.grammar.Token.LOGIC_FALSE_VALUE;
+import static eu.jrie.abacus.lang.domain.grammar.Token.LOGIC_TRUE_VALUE;
 import static eu.jrie.abacus.lang.domain.grammar.Token.NUMBER_VALUE;
 import static eu.jrie.abacus.lang.domain.grammar.Token.TEXT_VALUE;
 import static eu.jrie.abacus.lang.infra.ListTools.appended;
@@ -31,7 +33,9 @@ import static java.util.stream.Collectors.toList;
 
 class FormulaParser {
 
-    private static final Set<Token> ARGUMENT_TOKENS = unmodifiableSet(of(TEXT_VALUE, NUMBER_VALUE, CELL_REFERENCE));
+    private static final Set<Token> ARGUMENT_TOKENS = unmodifiableSet(of(
+            TEXT_VALUE, NUMBER_VALUE, CELL_REFERENCE, LOGIC_TRUE_VALUE, LOGIC_FALSE_VALUE
+    ));
 
     private final WorkbenchContext context;
     private final ArgumentParser argumentParser;

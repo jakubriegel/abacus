@@ -1,5 +1,6 @@
 package eu.jrie.abacus.lang.domain.parser.argument;
 
+import eu.jrie.abacus.core.domain.expression.LogicValue;
 import eu.jrie.abacus.core.domain.expression.NumberValue;
 import eu.jrie.abacus.core.domain.expression.TextValue;
 import eu.jrie.abacus.core.domain.expression.Value;
@@ -13,6 +14,7 @@ import org.junit.jupiter.api.Test;
 import java.util.List;
 
 import static eu.jrie.abacus.lang.domain.grammar.Token.CELL_REFERENCE;
+import static eu.jrie.abacus.lang.domain.grammar.Token.LOGIC_TRUE_VALUE;
 import static eu.jrie.abacus.lang.domain.grammar.Token.NUMBER_VALUE;
 import static eu.jrie.abacus.lang.domain.grammar.Token.TEXT_VALUE;
 import static java.util.Collections.singletonList;
@@ -29,9 +31,9 @@ class ArgumentParserTest {
     private final CellReferenceResolver cellReferenceResolver = mock(CellReferenceResolver.class);
     private final TextValueResolver textValueResolver = mock(TextValueResolver.class);
     private final NumberValueResolver numberValueResolver = mock(NumberValueResolver.class);
+    private final LogicValueResolver logicValueResolver = mock(LogicValueResolver.class);
 
-
-    private final ArgumentParser argumentParser = new ArgumentParser( cellReferenceResolver, textValueResolver, numberValueResolver);
+    private final ArgumentParser argumentParser = new ArgumentParser( cellReferenceResolver, textValueResolver, numberValueResolver, logicValueResolver);
 
     @Test
     void shouldParseCellReference() throws InvalidArgumentNumberException, InvalidArgumentTypeException {
@@ -52,7 +54,7 @@ class ArgumentParserTest {
 
         // then
         verify(cellReferenceResolver).resolve(argText);
-        verifyNoInteractions(textValueResolver, numberValueResolver);
+        verifyNoInteractions(textValueResolver, numberValueResolver, logicValueResolver);
         assertIterableEquals(singletonList(expectedArgValue), getValues(result));
     }
 
@@ -74,7 +76,7 @@ class ArgumentParserTest {
 
         // then
         verify(textValueResolver).resolve(argText);
-        verifyNoInteractions(cellReferenceResolver, numberValueResolver);
+        verifyNoInteractions(cellReferenceResolver, numberValueResolver, logicValueResolver);
         assertIterableEquals(singletonList(expectedArgValue), getValues(result));
     }
 
@@ -96,7 +98,51 @@ class ArgumentParserTest {
 
         // then
         verify(numberValueResolver).resolve(argText);
-        verifyNoInteractions(cellReferenceResolver, textValueResolver);
+        verifyNoInteractions(cellReferenceResolver, textValueResolver, logicValueResolver);
+        assertIterableEquals(singletonList(expectedArgValue), getValues(result));
+    }
+
+    @Test
+    void shouldParseLogicalTrueValue() throws InvalidArgumentNumberException, InvalidArgumentTypeException {
+        // given
+        var impl = mock(FormulaImplementation.class);
+        when(impl.isVararg()).thenReturn(false);
+        when(impl.getArgumentTypes()).thenReturn(singletonList(LogicValue.class));
+
+        // and
+        var argText = "true";
+        var args = singletonList(new TokenMatch(LOGIC_TRUE_VALUE, argText, argText));
+        var expectedArgValue = new LogicValue(true);
+        when(logicValueResolver.resolve(argText)).thenReturn(c -> expectedArgValue);
+
+        // when
+        var result = argumentParser.parseArgs(impl, args);
+
+        // then
+        verify(logicValueResolver).resolve(argText);
+        verifyNoInteractions(cellReferenceResolver, numberValueResolver, textValueResolver);
+        assertIterableEquals(singletonList(expectedArgValue), getValues(result));
+    }
+
+    @Test
+    void shouldParseLogicalFalseValue() throws InvalidArgumentNumberException, InvalidArgumentTypeException {
+        // given
+        var impl = mock(FormulaImplementation.class);
+        when(impl.isVararg()).thenReturn(false);
+        when(impl.getArgumentTypes()).thenReturn(singletonList(LogicValue.class));
+
+        // and
+        var argText = "false";
+        var args = singletonList(new TokenMatch(LOGIC_TRUE_VALUE, argText, argText));
+        var expectedArgValue = new LogicValue(false);
+        when(logicValueResolver.resolve(argText)).thenReturn(c -> expectedArgValue);
+
+        // when
+        var result = argumentParser.parseArgs(impl, args);
+
+        // then
+        verify(logicValueResolver).resolve(argText);
+        verifyNoInteractions(cellReferenceResolver, numberValueResolver, textValueResolver);
         assertIterableEquals(singletonList(expectedArgValue), getValues(result));
     }
 

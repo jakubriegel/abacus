@@ -1,6 +1,7 @@
 package eu.jrie.abacus.lang.domain.parser;
 
 import eu.jrie.abacus.core.domain.expression.Expression;
+import eu.jrie.abacus.core.domain.expression.LogicValue;
 import eu.jrie.abacus.core.domain.expression.NumberValue;
 import eu.jrie.abacus.core.domain.expression.TextValue;
 import eu.jrie.abacus.core.domain.expression.Value;
@@ -18,7 +19,6 @@ import org.junit.jupiter.params.ParameterizedTest;
 import org.junit.jupiter.params.provider.ValueSource;
 import org.mockito.ArgumentMatcher;
 
-import java.util.EnumSet;
 import java.util.LinkedList;
 import java.util.List;
 import java.util.Objects;
@@ -26,6 +26,7 @@ import java.util.function.Function;
 import java.util.stream.Stream;
 
 import static eu.jrie.abacus.lang.domain.grammar.Token.CELL_REFERENCE;
+import static eu.jrie.abacus.lang.domain.grammar.Token.LOGIC_TRUE_VALUE;
 import static eu.jrie.abacus.lang.domain.grammar.Token.NUMBER_VALUE;
 import static eu.jrie.abacus.lang.domain.grammar.Token.TEXT_VALUE;
 import static java.lang.String.format;
@@ -53,6 +54,8 @@ class FormulaParserTest {
     private static final String CELL_REFERENCE_ARG_TEXT = "C1";
     private static final String NUMBER_ARG_TEXT = "1";
     private static final String TEXT_ARG_TEXT = "'abc '";
+    private static final String LOGIC_TRUE_ARG_TEXT = "true";
+    private static final String LOGIC_FALSE_ARG_TEXT = "false";
 
     private static FormulaImplementation formula(List<Class<? extends Expression>> argTypes, Function<List<ArgumentValueSupplier>, Value> action) {
         return new FormulaImplementation() {
@@ -84,8 +87,15 @@ class FormulaParserTest {
         return arg;
     });
 
+    private static final FormulaImplementation SINGLE_LOGIC_ARG_FORMULA = formula(singletonList(LogicValue.class), args -> {
+        assertEquals(1, args.size());
+        var arg = args.get(0).get(null);
+        assertTrue(arg instanceof LogicValue);
+        return arg;
+    });
+
     private static final List<FormulaImplementation> singleArgFormulas = List.of(
-            SINGLE_NUMBER_ARG_FORMULA, SINGLE_TEXT_ARG_FORMULA
+            SINGLE_NUMBER_ARG_FORMULA, SINGLE_TEXT_ARG_FORMULA, SINGLE_LOGIC_ARG_FORMULA
     );
 
     private final WorkbenchContext context = mock(WorkbenchContext.class);
@@ -162,6 +172,32 @@ class FormulaParserTest {
         assertEquals(expectedArg, result.action().get());
     }
 
+    @ParameterizedTest(name = "should match single logic arg formula with true value- \"{0}\"")
+    @ValueSource(strings = {"action(true)", "action ( true ) "})
+    void shouldMatchSingleLogicArgFormulaWithTrueValue(String formulaText) throws InvalidInputException {
+        // given
+        var matchedArg = new TokenMatchMatcher(LOGIC_TRUE_VALUE, LOGIC_TRUE_ARG_TEXT);
+        var expectedArg = new LogicValue(true);
+
+        // and
+        when(context.findFormulasDefinition(FORMULA_NAME)).thenReturn(singleArgFormulas);
+        when(argumentParser.parseArgs(eq(SINGLE_NUMBER_ARG_FORMULA), any())).thenThrow(new InvalidArgumentTypeException());
+        when(argumentParser.parseArgs(eq(SINGLE_TEXT_ARG_FORMULA), any())).thenThrow(new InvalidArgumentTypeException());
+        when(argumentParser.parseArgs(eq(SINGLE_LOGIC_ARG_FORMULA), matches(matchedArg))).thenReturn(singletonList(c -> expectedArg));
+
+        // when
+        var result = parser.parse(formulaText);
+
+        // then
+        verify(context, atLeast(1)).findFormulasDefinition(FORMULA_NAME);
+        verify(argumentParser).parseArgs(eq(SINGLE_LOGIC_ARG_FORMULA), matches(matchedArg));
+
+        // and
+        assertEquals(FORMULA_NAME, result.functionName());
+        assertArgumentsEquals(singletonList(expectedArg), result.arguments());
+        assertEquals(expectedArg, result.action().get());
+    }
+
     @ParameterizedTest(name = "should match single cell reference arg formula - \"{0}\"")
     @ValueSource(strings = {"action(C1)", "action ( C1 ) "})
     void shouldMatchSingleCellReferenceArgFormula(String formulaText) throws InvalidInputException {
@@ -188,12 +224,14 @@ class FormulaParserTest {
 
     @TestFactory
     Stream<DynamicTest> shouldMatchMultiArgFormula() {
-        var argTypes = EnumSet.of(TEXT_VALUE, NUMBER_VALUE, CELL_REFERENCE);
+        var argTypes = List.of(TEXT_VALUE, NUMBER_VALUE, CELL_REFERENCE, LOGIC_TRUE_VALUE);
         var permutations = new LinkedList<List<Token>>();
         for (var a : argTypes) {
             for (var b : argTypes) {
                 for (var c : argTypes) {
-                    permutations.add(List.of(a, b, c));
+                    for (var d : argTypes) {
+                        permutations.add(List.of(a, b, c, d));
+                    }
                 }
             }
         }
@@ -208,33 +246,28 @@ class FormulaParserTest {
                             () -> {
                                 // when
                                 var impl = formulaImplementation(permutation);
-                                var expectedArg1 = expectedArg(permutation.get(0));
-                                var expectedArg2 = expectedArg(permutation.get(1));
-                                var expectedArg3 = expectedArg(permutation.get(2));
-                                var expectedResult = Stream.of(expectedArg1, expectedArg2, expectedArg3)
+                                var expectedArgs = List.of(
+                                        expectedArg(permutation.get(0)),
+                                        expectedArg(permutation.get(1)),
+                                        expectedArg(permutation.get(2)),
+                                        expectedArg(permutation.get(3))
+                                );
+                                var expectedResult = expectedArgs.stream()
                                         .map(Value::getAsString)
                                         .collect(joining(" "));
 
                                 var matchedArgs = permutation.stream()
                                         .map(token -> {
-                                            var text = switch (token) {
-                                                case CELL_REFERENCE -> CELL_REFERENCE_ARG_TEXT;
-                                                case NUMBER_VALUE -> NUMBER_ARG_TEXT;
-                                                case TEXT_VALUE -> TEXT_ARG_TEXT;
-                                                default -> throw new IllegalStateException();
-                                            };
+                                            var text = argText(token);
                                             return new TokenMatchMatcher(token, text);
                                         })
                                         .collect(toUnmodifiableList());
 
                                 var parsedArgs = permutation.stream()
                                         .map(token -> {
+                                            var expectedArg = expectedArg(token);
                                             @SuppressWarnings("UnnecessaryLocalVariable")
-                                            ArgumentValueSupplier supplier = switch (token) {
-                                                case CELL_REFERENCE, NUMBER_VALUE -> c -> new NumberValue(ONE);
-                                                case TEXT_VALUE -> c -> new TextValue("abc ");
-                                                default -> throw new IllegalStateException();
-                                            };
+                                            ArgumentValueSupplier supplier = c -> expectedArg;
                                             return supplier;
                                         })
                                         .collect(toUnmodifiableList());
@@ -253,7 +286,7 @@ class FormulaParserTest {
 
                                 // and
                                 assertEquals(FORMULA_NAME, result.functionName());
-                                assertArgumentsEquals(List.of(expectedArg1, expectedArg2, expectedArg3), result.arguments());
+                                assertArgumentsEquals(expectedArgs, result.arguments());
                                 assertEquals(expectedResult, result.action().get().getAsString());
 
                                 // cleanup
@@ -275,6 +308,8 @@ class FormulaParserTest {
             case CELL_REFERENCE -> CELL_REFERENCE_ARG_TEXT;
             case NUMBER_VALUE -> NUMBER_ARG_TEXT;
             case TEXT_VALUE -> TEXT_ARG_TEXT;
+            case LOGIC_TRUE_VALUE -> LOGIC_TRUE_ARG_TEXT;
+            case LOGIC_FALSE_VALUE -> LOGIC_FALSE_ARG_TEXT;
             default -> throw new IllegalStateException();
         };
     }
@@ -283,6 +318,8 @@ class FormulaParserTest {
         return switch (token) {
             case CELL_REFERENCE, NUMBER_VALUE -> new NumberValue(ONE);
             case TEXT_VALUE -> new TextValue("abc ");
+            case LOGIC_TRUE_VALUE -> new LogicValue(true);
+            case LOGIC_FALSE_VALUE -> new LogicValue(false);
             default -> throw new IllegalStateException();
         };
     }
@@ -292,12 +329,13 @@ class FormulaParserTest {
                 .map(arg -> switch (arg) {
                     case CELL_REFERENCE, NUMBER_VALUE -> NumberValue.class;
                     case TEXT_VALUE -> TextValue.class;
+                    case LOGIC_TRUE_VALUE, LOGIC_FALSE_VALUE -> LogicValue.class;
                     default -> throw new IllegalStateException();
                 })
                 .collect(toUnmodifiableList());
 
         return formula(argTypes, args -> {
-            assertEquals(3, args.size());
+            assertEquals(4, args.size());
             var text = args.stream()
                     .map(arg -> arg.get(null))
                     .map(Value::getAsString)
