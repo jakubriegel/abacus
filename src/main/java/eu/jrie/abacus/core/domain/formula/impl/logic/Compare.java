@@ -13,11 +13,6 @@ import static java.util.stream.Collectors.toUnmodifiableSet;
 
 public class Compare extends FormulaImplementation {
 
-//    @Override
-//    public String getName() {
-//        return "compareText";
-//    }
-
     @Override
     public boolean isVararg() {
         return true;
