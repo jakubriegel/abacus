@@ -1,5 +1,7 @@
 package eu.jrie.abacus.core.domain.formula;
 
+import eu.jrie.abacus.core.domain.formula.impl.logic.Compare;
+import eu.jrie.abacus.core.domain.formula.impl.logic.If;
 import eu.jrie.abacus.core.domain.formula.impl.math.basic.Abs;
 import eu.jrie.abacus.core.domain.formula.impl.math.basic.Add;
 import eu.jrie.abacus.core.domain.formula.impl.math.basic.Ceil;
@@ -51,7 +53,9 @@ public abstract class Formulas {
                 buildFormula(new Length()),
                 buildFormula(new Upper()),
                 buildFormula(new Lower()),
-                buildFormula(new Sub())
+                buildFormula(new Sub()),
+                buildFormula(new Compare()),
+                buildFormula(new If())
         ).collect(toUnmodifiableMap(Entry::getKey, Entry::getValue));
     }
 
