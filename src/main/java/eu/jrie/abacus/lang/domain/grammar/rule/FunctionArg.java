@@ -6,6 +6,8 @@ import eu.jrie.abacus.lang.domain.grammar.GrammarRule;
 import java.util.List;
 
 import static eu.jrie.abacus.lang.domain.grammar.Token.CELL_REFERENCE;
+import static eu.jrie.abacus.lang.domain.grammar.Token.LOGIC_FALSE_VALUE;
+import static eu.jrie.abacus.lang.domain.grammar.Token.LOGIC_TRUE_VALUE;
 import static eu.jrie.abacus.lang.domain.grammar.Token.NUMBER_VALUE;
 import static eu.jrie.abacus.lang.domain.grammar.Token.TEXT_VALUE;
 import static java.util.Collections.singletonList;
@@ -16,7 +18,9 @@ public class FunctionArg implements GrammarRule {
         return List.of(
                 singletonList(TEXT_VALUE),
                 singletonList(NUMBER_VALUE),
-                singletonList(CELL_REFERENCE)
+                singletonList(CELL_REFERENCE),
+                singletonList(LOGIC_TRUE_VALUE),
+                singletonList(LOGIC_FALSE_VALUE)
         );
     }
 }

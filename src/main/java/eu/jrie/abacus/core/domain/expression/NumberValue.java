@@ -1,9 +1,11 @@
 package eu.jrie.abacus.core.domain.expression;
 
-public final record NumberValue(long value) implements Value {
+import java.math.BigDecimal;
+
+public final record NumberValue(BigDecimal value) implements Value {
 
     public NumberValue(String value) {
-        this(Long.parseLong(value));
+        this(new BigDecimal(value));
     }
 
     @Override
@@ -13,6 +15,7 @@ public final record NumberValue(long value) implements Value {
 
     @Override
     public String getAsString() {
-        return String.valueOf(value);
+        return value.stripTrailingZeros()
+                .toString();
     }
 }

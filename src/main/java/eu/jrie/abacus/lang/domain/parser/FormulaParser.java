@@ -1,15 +1,8 @@
 package eu.jrie.abacus.lang.domain.parser;
 
-import eu.jrie.abacus.core.domain.expression.Expression;
 import eu.jrie.abacus.core.domain.expression.Formula;
-import eu.jrie.abacus.core.domain.expression.NumberValue;
-import eu.jrie.abacus.core.domain.expression.TextValue;
-import eu.jrie.abacus.core.domain.formula.ArgumentValueSupplier;
-import eu.jrie.abacus.core.domain.formula.FormulaDefinition;
 import eu.jrie.abacus.core.domain.workbench.WorkbenchContext;
 import eu.jrie.abacus.lang.domain.exception.CouldNotMatchFormulaDefinitionException;
-import eu.jrie.abacus.lang.domain.exception.InvalidArgumentNumberException;
-import eu.jrie.abacus.lang.domain.exception.InvalidArgumentTypeException;
 import eu.jrie.abacus.lang.domain.exception.InvalidInputException;
 import eu.jrie.abacus.lang.domain.exception.UnknownSyntaxException;
 import eu.jrie.abacus.lang.domain.grammar.GrammarElement;
@@ -17,8 +10,8 @@ import eu.jrie.abacus.lang.domain.grammar.GrammarRule;
 import eu.jrie.abacus.lang.domain.grammar.Token;
 import eu.jrie.abacus.lang.domain.grammar.TokenMatch;
 import eu.jrie.abacus.lang.domain.grammar.rule.Function;
+import eu.jrie.abacus.lang.domain.parser.argument.ArgumentParser;
 
-import java.util.ArrayList;
 import java.util.Collection;
 import java.util.LinkedList;
 import java.util.List;
@@ -28,10 +21,11 @@ import java.util.Set;
 
 import static eu.jrie.abacus.lang.domain.grammar.Token.CELL_REFERENCE;
 import static eu.jrie.abacus.lang.domain.grammar.Token.FUNCTION_NAME;
+import static eu.jrie.abacus.lang.domain.grammar.Token.LOGIC_FALSE_VALUE;
+import static eu.jrie.abacus.lang.domain.grammar.Token.LOGIC_TRUE_VALUE;
 import static eu.jrie.abacus.lang.domain.grammar.Token.NUMBER_VALUE;
 import static eu.jrie.abacus.lang.domain.grammar.Token.TEXT_VALUE;
 import static eu.jrie.abacus.lang.infra.ListTools.appended;
-import static java.util.Collections.unmodifiableList;
 import static java.util.Collections.unmodifiableSet;
 import static java.util.EnumSet.of;
 import static java.util.stream.Collectors.joining;
@@ -39,18 +33,16 @@ import static java.util.stream.Collectors.toList;
 
 class FormulaParser {
 
-    private static final Set<Token> ARGUMENT_TOKENS = unmodifiableSet(of(TEXT_VALUE, NUMBER_VALUE, CELL_REFERENCE));
+    private static final Set<Token> ARGUMENT_TOKENS = unmodifiableSet(of(
+            TEXT_VALUE, NUMBER_VALUE, CELL_REFERENCE, LOGIC_TRUE_VALUE, LOGIC_FALSE_VALUE
+    ));
 
     private final WorkbenchContext context;
-    private final CellReferenceResolver cellReferenceResolver;
-    private final TextValueResolver textValueResolver;
-    private final NumberValueResolver numberValueResolver;
+    private final ArgumentParser argumentParser;
 
-    FormulaParser(WorkbenchContext context, CellReferenceResolver cellReferenceResolver, TextValueResolver textValueResolver, NumberValueResolver numberValueResolver) {
+    FormulaParser(WorkbenchContext context, ArgumentParser argumentParser) {
         this.context = context;
-        this.cellReferenceResolver = cellReferenceResolver;
-        this.textValueResolver = textValueResolver;
-        this.numberValueResolver = numberValueResolver;
+        this.argumentParser = argumentParser;
     }
 
     Formula parse(String text) throws InvalidInputException {
@@ -78,8 +70,8 @@ class FormulaParser {
                 .flatMap(Collection::stream)
                 .map(definition -> {
                     try {
-                        var parsedArguments = tryDefine(definition, givenArguments);
-                        return new Formula(name, parsedArguments, () -> definition.action().run(context, parsedArguments));
+                        var parsedArguments = argumentParser.parseArgs(definition, givenArguments);
+                        return new Formula(name, parsedArguments, () -> definition.run(context, parsedArguments));
                     } catch (InvalidInputException e) {
                         return null;
                     }
@@ -87,42 +79,6 @@ class FormulaParser {
                 .filter(Objects::nonNull)
                 .findFirst()
                 .orElseThrow(CouldNotMatchFormulaDefinitionException::new);
-    }
-
-    private List<ArgumentValueSupplier> tryDefine(FormulaDefinition definition, List<TokenMatch> givenArguments) throws InvalidInputException {
-        final int argsSizeInDefinition = definition.argumentTypes().size();
-        if (argsSizeInDefinition != givenArguments.size()) {
-            throw new InvalidArgumentNumberException();
-        }
-
-        var parsedArguments = new ArrayList<ArgumentValueSupplier>(argsSizeInDefinition);
-        for (int i = 0; i < argsSizeInDefinition; i++) {
-            var arg = givenArguments.get(i);
-            var type = definition.argumentTypes().get(i);
-
-            if (!areArgumentsMatching(arg.token(), type)) {
-                throw new InvalidArgumentTypeException();
-            }
-
-            var parsedArg = switch (arg.token()) {
-                case CELL_REFERENCE -> cellReferenceResolver.resolve(arg.match());
-                case TEXT_VALUE -> textValueResolver.resolve(arg.match());
-                case NUMBER_VALUE -> numberValueResolver.resolve(arg.match());
-                default -> throw new IllegalStateException("Unexpected token: " + arg.token());
-            };
-            parsedArguments.add(parsedArg);
-        }
-
-        return unmodifiableList(parsedArguments);
-    }
-
-    private static boolean areArgumentsMatching(Token argToken, Class<? extends Expression> argType) {
-        return switch (argToken) {
-            case CELL_REFERENCE -> true;
-            case TEXT_VALUE -> argType == TextValue.class;
-            case NUMBER_VALUE -> argType == NumberValue.class;
-            default -> throw new IllegalStateException("Unexpected token: " + argToken);
-        };
     }
 
     private List<TokenMatch> matchRule(GrammarRule rule, String text, List<TokenMatch> results) {

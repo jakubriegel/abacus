@@ -1,6 +1,7 @@
 package eu.jrie.abacus.ui.domain.components.toolbar.editor;
 
 import eu.jrie.abacus.core.domain.cell.Cell;
+import eu.jrie.abacus.core.domain.expression.LogicValue;
 import eu.jrie.abacus.core.domain.expression.NumberValue;
 import eu.jrie.abacus.core.domain.expression.TextValue;
 import eu.jrie.abacus.core.infra.Alphabet;
@@ -37,6 +38,7 @@ public class CellEditor extends JTextArea {
     private final ImageIcon formulaIcon;
     private final ImageIcon textIcon;
     private final ImageIcon numberIcon;
+    private final ImageIcon logicIcon;
 
     private Cell cell = null;
 
@@ -49,6 +51,7 @@ public class CellEditor extends JTextArea {
         this.formulaIcon = resourcesProvider.getIcon("editor/round_functions_black_48dp.png");
         this.textIcon = resourcesProvider.getIcon("editor/round_text_fields_black_48dp.png");
         this.numberIcon = resourcesProvider.getIcon("editor/round_looks_one_black_48dp.png");
+        this.logicIcon = resourcesProvider.getIcon("editor/outline_toll_black_48dp.png");
         this.symbol = symbol;
         this.address = address;
         this.cellEditorField = cellEditorField;
@@ -108,6 +111,8 @@ public class CellEditor extends JTextArea {
             symbol.set(numberIcon);
         } else if (cell.getValue() instanceof TextValue) {
             symbol.set(textIcon);
+        } else if (cell.getValue() instanceof LogicValue) {
+            symbol.set(logicIcon);
         } else {
             symbol.set(null);
         }

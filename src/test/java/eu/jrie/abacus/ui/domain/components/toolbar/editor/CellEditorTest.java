@@ -2,6 +2,7 @@ package eu.jrie.abacus.ui.domain.components.toolbar.editor;
 
 import eu.jrie.abacus.core.domain.cell.Cell;
 import eu.jrie.abacus.core.domain.cell.Position;
+import eu.jrie.abacus.core.domain.expression.LogicValue;
 import eu.jrie.abacus.core.domain.expression.NumberValue;
 import eu.jrie.abacus.core.domain.expression.TextValue;
 import eu.jrie.abacus.ui.UITest;
@@ -17,6 +18,7 @@ import org.mockito.ArgumentCaptor;
 
 import javax.swing.*;
 import java.awt.event.KeyListener;
+import java.math.BigDecimal;
 import java.util.List;
 import java.util.stream.Stream;
 
@@ -90,19 +92,24 @@ class CellEditorTest extends UITest {
     Stream<DynamicTest> shouldRegisterUpdateCellEditorOnFocusHandler() {
         return Stream.of(
                 new TestCase(
-                        "should register update cell editor on focus handler - for Formula",
+                        "should register update cell editor on focus handler for Formula",
                         new Cell(position, true, "oldText", new TextValue("value")),
                         "editor/round_functions_black_48dp.png"
                 ),
                 new TestCase(
-                        "should register update cell editor on focus handler - for NumberValue",
-                        new Cell(position, false, "123", new NumberValue(123)),
+                        "should register update cell editor on focus handler for NumberValue",
+                        new Cell(position, false, "123", new NumberValue(new BigDecimal(123))),
                         "editor/round_looks_one_black_48dp.png"
                 ),
                 new TestCase(
-                        "should register update cell editor on focus handler - for TextValue",
+                        "should register update cell editor on focus handler for TextValue",
                         new Cell(position, false, "oldText", new TextValue("value")),
                         "editor/round_text_fields_black_48dp.png"
+                ),
+                new TestCase(
+                        "should register update cell editor on focus handler for TextValue",
+                        new Cell(position, false, "oldText", new LogicValue(true)),
+                        "editor/outline_toll_black_48dp.png"
                 )
         ).peek(it -> reset(resourcesProvider, cellAddress, bus, workbench, symbol, cellEditorField))
                 .map(testCase -> dynamicTest(testCase.name, () -> {
@@ -145,7 +152,7 @@ class CellEditorTest extends UITest {
                 ),
                 new TestCase(
                         "should register update cell editor on update handler - for NumberValue",
-                        new Cell(position, false, "123", new NumberValue(123)),
+                        new Cell(position, false, "123", new NumberValue(new BigDecimal(123))),
                         "editor/round_looks_one_black_48dp.png"
                 ),
                 new TestCase(

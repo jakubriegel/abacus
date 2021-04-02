@@ -6,9 +6,11 @@ import eu.jrie.abacus.core.domain.expression.Value;
 import org.junit.jupiter.api.DynamicNode;
 import org.junit.jupiter.api.TestFactory;
 
+import java.math.BigDecimal;
 import java.util.stream.Stream;
 
 import static java.lang.String.format;
+import static java.math.BigDecimal.ZERO;
 import static org.junit.jupiter.api.Assertions.assertEquals;
 import static org.junit.jupiter.api.DynamicTest.dynamicTest;
 
@@ -20,10 +22,12 @@ class ValueParserTest {
     @TestFactory
     Stream<DynamicNode> shouldParseNumberValue() {
         return Stream.of(
-                new TestCase("0", new NumberValue(0)),
-                new TestCase("123",  new NumberValue(123)),
-                new TestCase("-0", new NumberValue(0)),
-                new TestCase("-123", new NumberValue(-123))
+                new TestCase("0", new NumberValue(ZERO)),
+                new TestCase("123",  new NumberValue(new BigDecimal(123))),
+                new TestCase("-0", new NumberValue(ZERO)),
+                new TestCase("-123", new NumberValue(new BigDecimal(-123))),
+                new TestCase("1.23", new NumberValue(new BigDecimal("1.23"))),
+                new TestCase("-1.23", new NumberValue(new BigDecimal("-1.23")))
         ).map(testCase -> dynamicTest(format("should parse NumberValue %s as %s", testCase.given, testCase.expected), () -> {
             // when
             var result = parser.parse(testCase.given);
