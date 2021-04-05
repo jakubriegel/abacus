@@ -10,6 +10,7 @@ import javax.swing.table.DefaultTableCellRenderer;
 
 import static eu.jrie.abacus.core.domain.cell.style.CellTextAlignment.LEFT;
 import static eu.jrie.abacus.core.domain.cell.style.CellTextPosition.TOP;
+import static java.awt.Color.green;
 import static java.awt.Color.red;
 import static java.awt.Font.BOLD;
 import static java.awt.Font.ITALIC;
@@ -35,7 +36,7 @@ class CellStyleRendererTest {
         var row = position.y();
 
         // and
-        var style = new CellStyle(15f, true, true, true, red, LEFT, TOP);
+        var style = new CellStyle(15f, true, true, true, green, red, LEFT, TOP);
         when(styleProvider.getStyle(position)).thenReturn(style);
 
         // when
@@ -47,6 +48,7 @@ class CellStyleRendererTest {
         // and
         assertEquals(BOLD + ITALIC, result.getFont().getStyle());
         assertEquals(UNDERLINE_ON, result.getFont().getAttributes().get(UNDERLINE));
+        assertEquals(style.fontColor(), result.getForeground());
         assertEquals(style.backgroundColor(), result.getBackground());
         assertEquals(DefaultTableCellRenderer.TOP, ((DefaultTableCellRenderer) result).getVerticalAlignment());
         assertEquals(DefaultTableCellRenderer.LEFT, ((DefaultTableCellRenderer) result).getHorizontalAlignment());
@@ -61,7 +63,7 @@ class CellStyleRendererTest {
         var row = position.y();
 
         // and
-        var style = new CellStyle(12f, false, false, true, red, LEFT, TOP);
+        var style = new CellStyle(12f, false, false, true, green, red, LEFT, TOP);
         when(styleProvider.getStyle(position)).thenReturn(style);
 
         // when
@@ -82,7 +84,7 @@ class CellStyleRendererTest {
         var row = position.y();
 
         // and
-        var style = new CellStyle(12f, false, false, false, red, LEFT, TOP);
+        var style = new CellStyle(12f, false, false, false, green, red, LEFT, TOP);
         when(styleProvider.getStyle(position)).thenReturn(style);
 
         // when

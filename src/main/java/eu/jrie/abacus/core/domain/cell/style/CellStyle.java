@@ -7,7 +7,7 @@ public record CellStyle(
         boolean isBold,
         boolean isItalic,
         boolean isUnderlined,
-//            Color fontColor,
+        Color fontColor,
         Color backgroundColor,
         CellTextAlignment textAlignment,
         CellTextPosition textPosition
@@ -18,6 +18,7 @@ public record CellStyle(
         private boolean isBold;
         private boolean isItalic;
         private boolean isUnderlined;
+        private Color fontColor;
         private Color backgroundColor;
         private CellTextAlignment textAlignment;
         private CellTextPosition textPosition;
@@ -27,6 +28,7 @@ public record CellStyle(
                 boolean isBold,
                 boolean isItalic,
                 boolean isUnderlined,
+                Color fontColor,
                 Color backgroundColor,
                 CellTextAlignment textAlignment,
                 CellTextPosition textPosition
@@ -35,6 +37,7 @@ public record CellStyle(
             this.isBold = isBold;
             this.isItalic = isItalic;
             this.isUnderlined = isUnderlined;
+            this.fontColor = fontColor;
             this.backgroundColor = backgroundColor;
             this.textAlignment = textAlignment;
             this.textPosition = textPosition;
@@ -46,6 +49,7 @@ public record CellStyle(
                     style.isBold(),
                     style.isItalic(),
                     style.isUnderlined(),
+                    style.fontColor(),
                     style.backgroundColor(),
                     style.textAlignment(),
                     style.textPosition()
@@ -72,6 +76,16 @@ public record CellStyle(
             return this;
         }
 
+        public Builder withBFontColor(Color color) {
+            this.fontColor = color;
+            return this;
+        }
+
+        public Builder withBackgroundColor(Color color) {
+            this.backgroundColor = color;
+            return this;
+        }
+
         public Builder withTextAlignment(CellTextAlignment textAlignment) {
             this.textAlignment = textAlignment;
             return this;
@@ -86,7 +100,7 @@ public record CellStyle(
             return new CellStyle(
                     fontSize,
                     isBold, isItalic, isUnderlined,
-                    backgroundColor,
+                    fontColor, backgroundColor,
                     textAlignment, textPosition
             );
         }

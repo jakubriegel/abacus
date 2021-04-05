@@ -9,6 +9,8 @@ import java.util.Map;
 import static eu.jrie.abacus.core.domain.cell.style.CellTextAlignment.LEFT;
 import static eu.jrie.abacus.core.domain.cell.style.CellTextPosition.MIDDLE;
 import static eu.jrie.abacus.core.domain.cell.style.CellTextPosition.TOP;
+import static java.awt.Color.black;
+import static java.awt.Color.green;
 import static java.awt.Color.red;
 import static java.awt.Color.white;
 import static org.junit.jupiter.api.Assertions.assertEquals;
@@ -16,8 +18,8 @@ import static org.junit.jupiter.api.Assertions.assertEquals;
 class CellStyleManagerTest {
 
     private static final Position POSITION = new Position(1, 2);
-    private static final CellStyle STYLE = new CellStyle(10f, true, false, false, red, LEFT, TOP);
-    private static final CellStyle DEFAULT_STYLE = new CellStyle(12f, false, false, false, white, LEFT, MIDDLE);
+    private static final CellStyle STYLE = new CellStyle(10f, true, false, false, green, red, LEFT, TOP);
+    private static final CellStyle DEFAULT_STYLE = new CellStyle(12f, false, false, false, black, white, LEFT, MIDDLE);
 
     private final Map<Position, CellStyle> styles = new HashMap<>();
 

@@ -8,6 +8,7 @@ import java.util.Map;
 import static eu.jrie.abacus.core.domain.cell.style.CellTextAlignment.LEFT;
 import static eu.jrie.abacus.core.domain.cell.style.CellTextPosition.MIDDLE;
 import static eu.jrie.abacus.ui.infra.FontProvider.DEFAULT_FONT_SIZE;
+import static java.awt.Color.black;
 import static java.awt.Color.white;
 
 public class CellStyleManager implements CellStyleModifier, CellStyleProvider {
@@ -17,6 +18,7 @@ public class CellStyleManager implements CellStyleModifier, CellStyleProvider {
             false,
             false,
             false,
+            black,
             white,
             LEFT,
             MIDDLE

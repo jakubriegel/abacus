@@ -34,6 +34,7 @@ import static javax.swing.BorderFactory.createEmptyBorder;
 import static javax.swing.BorderFactory.createLineBorder;
 import static javax.swing.BoxLayout.X_AXIS;
 import static javax.swing.BoxLayout.Y_AXIS;
+import static javax.swing.JColorChooser.showDialog;
 
 public class TextTools extends JPanel {
 
@@ -53,6 +54,7 @@ public class TextTools extends JPanel {
     private final JButton alignCenterButton;
     private final JButton alignRightButton;
     private final JButton justifyButton;
+    private final JPanel fontColorTile;
 
     // bottom tools
     private final JButton boldButton;
@@ -61,6 +63,7 @@ public class TextTools extends JPanel {
     private final JButton alignBottomButton;
     private final JButton alignMiddleButton;
     private final JButton alignTopButton;
+    private final JPanel backgroundColorTile;
 
     public TextTools(EventBus bus, IconButtonFactory iconButtonFactory) {
         this.bus = bus;
@@ -79,8 +82,8 @@ public class TextTools extends JPanel {
         alignRightButton = button(top, "Align text right", "round_format_align_right_black_48dp.png", () -> switchTextAlignment(RIGHT));
         justifyButton = button(top, "Justify text", "round_format_align_justify_black_48dp.png", () -> switchTextAlignment(JUSTIFY));
         button(top, "Change text color", "round_format_color_text_black_48dp.png");
-        colorTile(top, black);
-        button(top, "Choose text color", "../round_expand_more_black_48dp.png");
+        fontColorTile = colorTile(top, black);
+        button(top, "Choose text color", "../round_expand_more_black_48dp.png", this::switchFontColor);
 
         boldButton = button(bottom, "Bold text", "round_format_bold_black_48dp.png", this::switchBold);
         italicButton = button(bottom, "Italic text", "round_format_italic_black_48dp.png", this::switchItalic);
@@ -90,8 +93,8 @@ public class TextTools extends JPanel {
         alignTopButton = button(bottom, "Align text top", "round_vertical_align_top_black_48dp.png", () -> switchTextPosition(TOP));
         button(bottom, "Clear text formatting", "round_format_clear_black_48dp.png", this::clearFormatting);
         button(bottom, "Change cell color", "round_format_color_fill_black_48dp.png");
-        colorTile(bottom, white);
-        button(bottom, "Choose cell color", "../round_expand_more_black_48dp.png");
+        backgroundColorTile = colorTile(bottom, white);
+        button(bottom, "Choose cell color", "../round_expand_more_black_48dp.png", this::switchBackgroundColor);
 
         add(top);
         add(bottom);
@@ -109,6 +112,20 @@ public class TextTools extends JPanel {
 
     private void updateFontSize() {
         fontSizePicker.setSelectedItem((int) cellStyle.fontSize());
+    }
+
+    private void switchFontColor() {
+        if (cellStyle != null) {
+            var color = showDialog(null, "Choose text color", cellStyle.fontColor(), true);
+            var updatedStyle = from(cellStyle)
+                    .withBFontColor(color)
+                    .build();
+            updateStyle(updatedStyle);
+        }
+    }
+
+    private void updateFontColor() {
+        fontColorTile.setBackground(cellStyle.fontColor());
     }
 
     private void switchTextAlignment(CellTextAlignment textAlignment) {
@@ -211,6 +228,20 @@ public class TextTools extends JPanel {
         bus.accept(new Event(CELL_STYLE_UPDATED, cellPosition, null, null));
     }
 
+    private void switchBackgroundColor() {
+        if (cellStyle != null) {
+            var color = showDialog(null, "Choose cell color", cellStyle.backgroundColor(), true);
+            var updatedStyle = from(cellStyle)
+                    .withBackgroundColor(color)
+                    .build();
+            updateStyle(updatedStyle);
+        }
+    }
+
+    private void updateBackgroundColor() {
+        backgroundColorTile.setBackground(cellStyle.backgroundColor());
+    }
+
     private void update(Position cellPosition, CellStyle cellStyle) {
         this.cellPosition = requireNonNull(cellPosition);
         this.cellStyle = requireNonNull(cellStyle);
@@ -223,6 +254,8 @@ public class TextTools extends JPanel {
         updateBold();
         updateItalic();
         updateUnderlined();
+        updateFontColor();
+        updateBackgroundColor();
         updateTextAlignment();
         updateTextPosition();
         bus.accept(new Event(CELL_STYLE_UPDATED, cellPosition, null, updatedStyle));
@@ -243,7 +276,7 @@ public class TextTools extends JPanel {
         return container;
     }
 
-    private static JComponent colorTile(JPanel container, Color color) {
+    private static JPanel colorTile(JPanel container, Color color) {
         var panel = new JPanel();
         panel.setLayout(new BorderLayout());
         panel.setBorder(createCompoundBorder(

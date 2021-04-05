@@ -49,6 +49,7 @@ public class CellStyleRenderer extends DefaultTableCellRenderer {
         applyPosition(cell, style);
         applyAlign(cell, style);
         applyFontSize(cell, style);
+        applyFontColor(cell, style);
     }
 
     private static void applyBoldAndItalic(Component cell, CellStyle style) {
@@ -96,4 +97,7 @@ public class CellStyleRenderer extends DefaultTableCellRenderer {
         cell.setFont(font.deriveFont(style.fontSize()));
     }
 
+    private static void applyFontColor(Component cell, CellStyle style) {
+        cell.setForeground(style.fontColor());
+    }
 }
