@@ -33,7 +33,6 @@ public class WorkbenchFacade implements WorkbenchAccessor {
                 "updateCellStyle",
                 CELL_STYLE_UPDATED,
                 event -> updateCellStyle(event.position(), event.cellStyle())
-
         );
     }
 

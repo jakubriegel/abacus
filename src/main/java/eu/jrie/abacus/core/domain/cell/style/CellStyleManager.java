@@ -11,7 +11,7 @@ import static eu.jrie.abacus.ui.infra.FontProvider.DEFAULT_FONT_SIZE;
 import static java.awt.Color.black;
 import static java.awt.Color.white;
 
-public class CellStyleManager implements CellStyleModifier, CellStyleProvider {
+public class CellStyleManager implements CellStyleProvider {
 
     private static final CellStyle DEFAULT_STYLE = new CellStyle(
             DEFAULT_FONT_SIZE,
@@ -38,7 +38,6 @@ public class CellStyleManager implements CellStyleModifier, CellStyleProvider {
         setStyle(position, DEFAULT_STYLE);
     }
 
-    @Override
     public void setStyle(Position position, CellStyle style) {
         if (style.equals(DEFAULT_STYLE)) {
             styles.remove(position);
