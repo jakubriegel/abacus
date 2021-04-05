@@ -30,7 +30,7 @@ class ToolbarTest extends UITest {
                         spy(EventBus.class), mock(WorkbenchAccessor.class)
                 )
         );
-        var textTools = spy(TextTools.class);
+        var textTools = textToolsSpy();
 
         // when
         var toolbar = new Toolbar(logoLabel, cellEditor, textTools);

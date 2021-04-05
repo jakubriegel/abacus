@@ -66,7 +66,7 @@ public class CellEditor extends JTextArea {
         cellEditorField.addKeyListener(keyReleasedListener(event -> {
             if (cell != null) {
                 var editedText = cellEditorField.getText();
-                bus.accept(new Event(CELL_EDITOR_UPDATED, cell.getPosition(), editedText));
+                bus.accept(new Event(CELL_EDITOR_UPDATED, cell.getPosition(), editedText, null));
             }
         }));
 

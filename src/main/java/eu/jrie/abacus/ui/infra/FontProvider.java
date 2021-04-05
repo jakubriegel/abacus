@@ -12,11 +12,13 @@ public class FontProvider {
     private static final File FONT_FILE = new File(FontProvider.class.getResource("/JetBrainsMono-Regular.ttf").getFile());
     private static Font font = null;
 
+    public static final float DEFAULT_FONT_SIZE = 12f;
+
     private FontProvider() {}
 
     public static Font standardFont() {
         if (font == null) {
-            font = createFont().deriveFont(12f);
+            font = createFont().deriveFont(DEFAULT_FONT_SIZE);
             getLocalGraphicsEnvironment().registerFont(font);
         }
         return font;

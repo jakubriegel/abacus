@@ -15,11 +15,14 @@ public class ComponentFactory implements IconButtonFactory {
     private final ResourcesProvider resourcesProvider = new ResourcesProvider();
 
     @Override
-    public JComponent buildButton(String text, String iconPath, int iconSize) {
+    public JComponent buildButton(String text, String iconPath, int iconSize, Runnable onClick) {
         var panel = new JPanel();
         panel.setLayout(new BorderLayout());
         panel.setBorder(createCompoundBorder(createEmptyBorder(), createEmptyBorder()));
+
         var button = new IconButton(text, buildIcon(iconPath, iconSize));
+        button.addActionListener(e -> onClick.run());
+
         panel.add(button);
         return panel;
     }

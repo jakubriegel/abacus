@@ -2,6 +2,7 @@ package eu.jrie.abacus.ui.domain.workbench;
 
 import eu.jrie.abacus.core.domain.cell.Cell;
 import eu.jrie.abacus.core.domain.cell.Position;
+import eu.jrie.abacus.core.domain.cell.style.CellStyle;
 
 public interface WorkbenchAccessor {
     Cell getCell(Position position);
@@ -13,4 +14,6 @@ public interface WorkbenchAccessor {
     default String getValueAsString(Position position) {
         return getCell(position).getValueAsString();
     }
+
+    CellStyle getCellStyle(Position position);
 }

@@ -1,8 +1,11 @@
 package eu.jrie.abacus.ui;
 
+import eu.jrie.abacus.ui.domain.components.factory.ComponentFactory;
+import eu.jrie.abacus.ui.domain.components.space.workbench.CellStyleRenderer;
 import eu.jrie.abacus.ui.domain.components.space.workbench.WorkbenchScroll;
 import eu.jrie.abacus.ui.domain.components.space.workbench.WorkbenchTable;
 import eu.jrie.abacus.ui.domain.components.space.workbench.WorkbenchTableModel;
+import eu.jrie.abacus.ui.domain.components.toolbar.TextTools;
 import eu.jrie.abacus.ui.domain.components.toolbar.editor.CellAddress;
 import eu.jrie.abacus.ui.domain.components.toolbar.editor.CellEditor;
 import eu.jrie.abacus.ui.domain.components.toolbar.editor.CellEditorField;
@@ -22,7 +25,11 @@ import static org.mockito.Mockito.spy;
 public abstract class UITest {
 
     protected static WorkbenchTable workbenchTableSpy() {
-        return spy(new WorkbenchTable(mock(WorkbenchAccessor.class), mock(WorkbenchTableModel.class), mock(EventBus.class)));
+        var workbenchAccessor = mock(WorkbenchAccessor.class);
+        var workbenchTableModel = mock(WorkbenchTableModel.class);
+        var bus = mock(EventBus.class);
+        var renderer = mock(CellStyleRenderer.class);
+        return spy(new WorkbenchTable(workbenchAccessor, workbenchTableModel, bus, renderer));
     }
 
     protected static WorkbenchScroll workbenchScrollSpy() {
@@ -37,6 +44,12 @@ public abstract class UITest {
         var eventBus = mock(EventBus.class);
         var workbench = mock(WorkbenchAccessor.class);
         return spy(new CellEditor(resourceProvider, symbol, cellAddress, cellEditorField, eventBus, workbench));
+    }
+
+    protected static TextTools textToolsSpy() {
+        var bus = mock(EventBus.class);
+        var factory = new ComponentFactory();
+        return spy(new TextTools(bus, factory));
     }
 
     protected static void assertHasStandardFont(JComponent component) {

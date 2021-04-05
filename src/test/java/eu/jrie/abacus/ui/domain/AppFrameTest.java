@@ -4,7 +4,6 @@ import eu.jrie.abacus.ui.UITest;
 import eu.jrie.abacus.ui.domain.components.space.Space;
 import eu.jrie.abacus.ui.domain.components.space.UtilsMenu;
 import eu.jrie.abacus.ui.domain.components.toolbar.LogoLabel;
-import eu.jrie.abacus.ui.domain.components.toolbar.TextTools;
 import eu.jrie.abacus.ui.domain.components.toolbar.Toolbar;
 import eu.jrie.abacus.ui.infra.ResourcesProvider;
 import org.junit.jupiter.api.BeforeEach;
@@ -27,7 +26,7 @@ import static org.mockito.Mockito.when;
 class AppFrameTest extends UITest {
 
     private final ResourcesProvider resourcesProvider = mock(ResourcesProvider.class);
-    private final Toolbar toolbar = spy(new Toolbar(spy(LogoLabel.class), cellEditorSpy(), spy(TextTools.class)));
+    private final Toolbar toolbar = spy(new Toolbar(spy(LogoLabel.class), cellEditorSpy(), textToolsSpy()));
     private final Space space = spy(new Space(spy(UtilsMenu.class), workbenchScrollSpy()));
 
     private AppFrame appFrame;

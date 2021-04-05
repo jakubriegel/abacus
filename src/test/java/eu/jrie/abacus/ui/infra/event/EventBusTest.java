@@ -42,7 +42,7 @@ class EventBusTest {
         bus.register("invalid", CELL_UPDATED, event -> invalidCalled.set(true));
 
         // when
-        bus.accept(new Event(CELL_FOCUS, null, null));
+        bus.accept(new Event(CELL_FOCUS, null, null, null));
 
         // then
         assertTrue(matchingCalled.get());

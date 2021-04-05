@@ -43,11 +43,12 @@ class WorkbenchTableTest extends UITest {
     private final WorkbenchAccessor workbench = spy(WorkbenchAccessor.class);
     private final WorkbenchTableModel model = spy(WorkbenchTableModel.class);
     private final EventBus bus = mock(EventBus.class);
+    private final CellStyleRenderer renderer = mock(CellStyleRenderer.class);
 
     @Test
     void shouldCreateWorkbenchTable() {
         // when
-        var table = new WorkbenchTable(workbench, model, bus);
+        var table = new WorkbenchTable(workbench, model, bus, renderer);
 
         // then
         assertHasStandardFont(table);
@@ -64,14 +65,14 @@ class WorkbenchTableTest extends UITest {
         var actionCaptor = ArgumentCaptor.forClass(EventAction.class);
 
         // when
-        new WorkbenchTable(workbench, model, bus);
+        new WorkbenchTable(workbench, model, bus, renderer);
 
         // then
         verify(bus).register(eq("workbenchTableCellValueUpdate"), eq(CELL_VALUE_CHANGED), actionCaptor.capture());
 
         // given
         var action = actionCaptor.getValue();
-        var event = new Event(CELL_VALUE_CHANGED, position, null);
+        var event = new Event(CELL_VALUE_CHANGED, position, null, null);
 
         // and
         var value = "newValue";
@@ -93,7 +94,7 @@ class WorkbenchTableTest extends UITest {
         var actionCaptor = ArgumentCaptor.forClass(EventAction.class);
 
         // when
-        var table = new WorkbenchTable(workbench, model, bus);
+        var table = new WorkbenchTable(workbench, model, bus, renderer);
         addCells(table);
 
         // then
@@ -103,7 +104,7 @@ class WorkbenchTableTest extends UITest {
         var action = actionCaptor.getValue();
         selectCell(table);
         var eventText = "eventText";
-        var event = new Event(CELL_EDITOR_UPDATED, position, eventText);
+        var event = new Event(CELL_EDITOR_UPDATED, position, eventText, null);
 
         // when
         action.accept(event);
@@ -111,20 +112,20 @@ class WorkbenchTableTest extends UITest {
         // then
         assertTrue(table.isEditing());
         assertEquals(eventText, ((JTextField) table.getEditorComponent()).getText());
-        verify(bus, atLeast(1)).accept(new Event(CELL_UPDATED, position, eventText));
+        verify(bus, atLeast(1)).accept(new Event(CELL_UPDATED, position, eventText, null));
     }
 
     @Test
     void shouldRegisterEditionStartListener() {
         // given
-        var table = new WorkbenchTable(workbench, model, bus);
+        var table = new WorkbenchTable(workbench, model, bus, renderer);
         addCells(table);
 
         // and
         selectCell(table);
         var text = "text";
         doReturn(text).when(workbench).getText(position);
-        var event = new Event(CELL_UPDATED, position, text);
+        var event = new Event(CELL_UPDATED, position, text, null);
         doNothing().when(bus).accept(event);
 
         // when
@@ -138,14 +139,14 @@ class WorkbenchTableTest extends UITest {
     @Test
     void shouldRegisterEditionStopListener() {
         // given
-        var table = new WorkbenchTable(workbench, model, bus);
+        var table = new WorkbenchTable(workbench, model, bus, renderer);
         addCells(table);
 
         // and
         selectCell(table);
         var text = "text";
         when(model.getValueAt(position.y(), position.x()+1)).thenReturn(text);
-        var event = new Event(CELL_UPDATED, position, text);
+        var event = new Event(CELL_UPDATED, position, text, null);
         doNothing().when(bus).accept(event);
 
         // when
@@ -160,7 +161,7 @@ class WorkbenchTableTest extends UITest {
     @ValueSource(ints = {10, 37, 38, 39, 40})
     void shouldRegisterKeyListenerForNavigation(int keyCode) {
         // when
-        var table = new WorkbenchTable(workbench, model, bus);
+        var table = new WorkbenchTable(workbench, model, bus, renderer);
         addCells(table);
 
         // then
@@ -173,7 +174,7 @@ class WorkbenchTableTest extends UITest {
         selectCell(table);
         var text = "text";
         doReturn(text).when(workbench).getText(position);
-        var event = new Event(CELL_FOCUS, position, text);
+        var event = new Event(CELL_FOCUS, position, text, null);
         doNothing().when(bus).accept(event);
 
         // when
@@ -187,7 +188,7 @@ class WorkbenchTableTest extends UITest {
     @Test
     void shouldRegisterKeyListenerForInput() {
         // when
-        var table = new WorkbenchTable(workbench, model, bus);
+        var table = new WorkbenchTable(workbench, model, bus, renderer);
         addCells(table);
 
         // then
@@ -209,7 +210,7 @@ class WorkbenchTableTest extends UITest {
     @Test
     void shouldRegisterClickListener() {
         // when
-        var table = new WorkbenchTable(workbench, model, bus);
+        var table = new WorkbenchTable(workbench, model, bus, renderer);
         addCells(table);
 
         // then
@@ -222,7 +223,7 @@ class WorkbenchTableTest extends UITest {
         selectCell(table);
         var text = "text";
         doReturn(text).when(workbench).getText(position);
-        var event = new Event(CELL_FOCUS, position, text);
+        var event = new Event(CELL_FOCUS, position, text, null);
         doNothing().when(bus).accept(event);
 
         // when
