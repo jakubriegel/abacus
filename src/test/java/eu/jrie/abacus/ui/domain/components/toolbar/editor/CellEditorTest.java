@@ -55,7 +55,7 @@ class CellEditorTest extends UITest {
     private final Position position = new Position(1, 2);
     private final ImageIcon icon = new ImageIcon();
     private final String text = "text";
-    private final Event event = new Event(CELL_FOCUS, position, text);
+    private final Event event = new Event(CELL_FOCUS, position, text, null);
     private final String address = "B3";
 
     @Test
@@ -262,6 +262,6 @@ class CellEditorTest extends UITest {
         listener.keyReleased(null);
 
         // then
-        verify(bus).accept(new Event(CELL_EDITOR_UPDATED, cell.getPosition(), editedText));
+        verify(bus).accept(new Event(CELL_EDITOR_UPDATED, cell.getPosition(), editedText, null));
     }
 }

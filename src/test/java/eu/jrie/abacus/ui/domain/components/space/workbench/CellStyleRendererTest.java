@@ -6,7 +6,9 @@ import eu.jrie.abacus.core.domain.cell.style.CellStyleProvider;
 import org.junit.jupiter.api.Test;
 
 import javax.swing.*;
+import javax.swing.table.DefaultTableCellRenderer;
 
+import static eu.jrie.abacus.core.domain.cell.style.CellTextPosition.TOP;
 import static java.awt.Color.red;
 import static java.awt.Font.BOLD;
 import static java.awt.Font.ITALIC;
@@ -32,7 +34,7 @@ class CellStyleRendererTest {
         var row = position.y();
 
         // and
-        var style = new CellStyle(true, true, true, red);
+        var style = new CellStyle(true, true, true, red, TOP);
         when(styleProvider.getStyle(position)).thenReturn(style);
 
         // when
@@ -45,6 +47,7 @@ class CellStyleRendererTest {
         assertEquals(BOLD + ITALIC, result.getFont().getStyle());
         assertEquals(UNDERLINE_ON, result.getFont().getAttributes().get(UNDERLINE));
         assertEquals(style.backgroundColor(), result.getBackground());
+        assertEquals(DefaultTableCellRenderer.TOP, ((DefaultTableCellRenderer) result).getVerticalAlignment());
     }
 
     @Test
@@ -55,7 +58,7 @@ class CellStyleRendererTest {
         var row = position.y();
 
         // and
-        var style = new CellStyle(false, false, true, red);
+        var style = new CellStyle(false, false, true, red, TOP);
         when(styleProvider.getStyle(position)).thenReturn(style);
 
         // when
@@ -76,7 +79,7 @@ class CellStyleRendererTest {
         var row = position.y();
 
         // and
-        var style = new CellStyle(false, false, false, red);
+        var style = new CellStyle(false, false, false, red, TOP);
         when(styleProvider.getStyle(position)).thenReturn(style);
 
         // when

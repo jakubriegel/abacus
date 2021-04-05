@@ -46,6 +46,7 @@ public class CellStyleRenderer extends DefaultTableCellRenderer {
         applyBoldAndItalic(cell, style);
         applyUnderline(cell, style);
         applyBackground(cell, style);
+        applyPosition(cell, style);
     }
 
     private static void applyBoldAndItalic(Component cell, CellStyle style) {
@@ -67,6 +68,15 @@ public class CellStyleRenderer extends DefaultTableCellRenderer {
 
     private static void applyBackground(Component cell, CellStyle style) {
         cell.setBackground(style.backgroundColor());
+    }
+
+    private static void applyPosition(Component cell, CellStyle style) {
+        var position = switch (style.textPosition()) {
+            case TOP -> DefaultTableCellRenderer.TOP;
+            case MIDDLE -> DefaultTableCellRenderer.CENTER;
+            case BOTTOM -> DefaultTableCellRenderer.BOTTOM;
+        };
+        ((DefaultTableCellRenderer) cell).setVerticalAlignment(position);
     }
 
 }

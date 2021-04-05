@@ -6,6 +6,8 @@ import org.junit.jupiter.api.Test;
 import java.util.HashMap;
 import java.util.Map;
 
+import static eu.jrie.abacus.core.domain.cell.style.CellTextPosition.MIDDLE;
+import static eu.jrie.abacus.core.domain.cell.style.CellTextPosition.TOP;
 import static java.awt.Color.red;
 import static java.awt.Color.white;
 import static org.junit.jupiter.api.Assertions.assertEquals;
@@ -13,6 +15,7 @@ import static org.junit.jupiter.api.Assertions.assertEquals;
 class CellStyleManagerTest {
 
     private static final Position POSITION = new Position(1, 2);
+    private static final CellStyle DEFAULT_STYLE = new CellStyle(false, false, false, white, MIDDLE);
 
     private final Map<Position, CellStyle> styles = new HashMap<>();
 
@@ -21,7 +24,7 @@ class CellStyleManagerTest {
     @Test
     void shouldSetStyle() {
         // given
-        var style = new CellStyle(true, false, false, red);
+        var style = new CellStyle(true, false, false, red, TOP);
 
         // when
         manager.setStyle(POSITION, style);
@@ -33,11 +36,8 @@ class CellStyleManagerTest {
 
     @Test
     void shouldNotSaveDefaultStyle() {
-        // given
-        var defaultStyle = new CellStyle(false, false, false, white);
-
         // when
-        manager.setStyle(POSITION, defaultStyle);
+        manager.setStyle(POSITION, DEFAULT_STYLE);
 
         // then
         assertEquals(0, styles.size());
@@ -46,12 +46,11 @@ class CellStyleManagerTest {
     @Test
     void shouldRemoveEntryWhenSettingDefaultStyle() {
         // given
-        var style = new CellStyle(true, false, false, red);
+        var style = new CellStyle(true, false, false, red, TOP);
         styles.put(POSITION, style);
-        var defaultStyle = new CellStyle(false, false, false, white);
 
         // when
-        manager.setStyle(POSITION, defaultStyle);
+        manager.setStyle(POSITION, DEFAULT_STYLE);
 
         // then
         assertEquals(0, styles.size());
@@ -60,7 +59,7 @@ class CellStyleManagerTest {
     @Test
     void shouldGetStyle() {
         // given
-        var style = new CellStyle(true, false, false, red);
+        var style = new CellStyle(true, false, false, red, TOP);
         styles.put(POSITION, style);
 
         // when
@@ -73,14 +72,11 @@ class CellStyleManagerTest {
 
     @Test
     void shouldGetDefaultStyle() {
-        // given
-        var defaultStyle = new CellStyle(false, false, false, white);
-
         // when
         var result = manager.getStyle(POSITION);
 
         // then
         assertEquals(0, styles.size());
-        assertEquals(defaultStyle, result);
+        assertEquals(DEFAULT_STYLE, result);
     }
 }

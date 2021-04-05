@@ -82,13 +82,13 @@ class WorkbenchFacadeTest {
         var action = actionCaptor.getValue();
 
         // given
-        var event = new Event(CELL_UPDATED, position, "updatedText");
+        var event = new Event(CELL_UPDATED, position, "updatedText", null);
 
         // when
         action.accept(event);
 
         // then
         verify(workbench).setTextAt(position, event.text());
-        verify(eventBus).accept(new Event(CELL_VALUE_CHANGED, position, event.text()));
+        verify(eventBus).accept(new Event(CELL_VALUE_CHANGED, position, event.text(), null));
     }
 }

@@ -1,10 +1,13 @@
 package eu.jrie.abacus.ui.domain;
 
 import eu.jrie.abacus.core.domain.cell.CellManager;
+import eu.jrie.abacus.core.domain.cell.style.CellStyleManager;
 import eu.jrie.abacus.core.domain.formula.FormulaManager;
 import eu.jrie.abacus.core.domain.workbench.Workbench;
+import eu.jrie.abacus.ui.domain.components.factory.ComponentFactory;
 import eu.jrie.abacus.ui.domain.components.space.Space;
 import eu.jrie.abacus.ui.domain.components.space.UtilsMenu;
+import eu.jrie.abacus.ui.domain.components.space.workbench.CellStyleRenderer;
 import eu.jrie.abacus.ui.domain.components.space.workbench.WorkbenchScroll;
 import eu.jrie.abacus.ui.domain.components.space.workbench.WorkbenchTable;
 import eu.jrie.abacus.ui.domain.components.space.workbench.WorkbenchTableModel;
@@ -23,6 +26,7 @@ import static eu.jrie.abacus.core.domain.formula.Formulas.buildFormulas;
 
 public abstract class AppFrameFactory {
 
+    private static final CellStyleManager cellStyleManager = new CellStyleManager();
     private static final Workbench workbench = buildWorkbench();
     private static final EventBus eventBus = new EventBus();
     private static final WorkbenchFacade workbenchFacade = new WorkbenchFacade(workbench, eventBus);
@@ -40,13 +44,14 @@ public abstract class AppFrameFactory {
         var cellManager = new CellManager();
         var formulas = buildFormulas();
         var formulaManager = new FormulaManager(formulas);
-        return new Workbench(cellManager, formulaManager);
+        return new Workbench(cellManager, cellStyleManager, formulaManager);
     }
 
     private static Toolbar buildToolbar() {
         var logoLabel = new LogoLabel();
         var cellEditor = buildCellEditor();
-        var textTools = new TextTools();
+        var componentFactory = new ComponentFactory();
+        var textTools = new TextTools(eventBus, componentFactory);
         return new Toolbar(logoLabel, cellEditor, textTools);
     }
 
@@ -60,7 +65,8 @@ public abstract class AppFrameFactory {
     private static Space buildSpace() {
         var menu = new UtilsMenu();
         var workbenchTableModel = new WorkbenchTableModel();
-        var workbenchTable = new WorkbenchTable(workbenchFacade, workbenchTableModel, eventBus);
+        var cellStyleRenderer = new CellStyleRenderer(cellStyleManager);
+        var workbenchTable = new WorkbenchTable(workbenchFacade, workbenchTableModel, eventBus, cellStyleRenderer);
         var workbenchScroll = new WorkbenchScroll(workbenchTable);
         return new Space(menu, workbenchScroll);
     }

@@ -12,9 +12,11 @@ import java.util.Set;
 import java.util.Vector;
 import java.util.logging.Logger;
 
+import static eu.jrie.abacus.ui.domain.Colors.PRIMARY_COLOR;
 import static eu.jrie.abacus.ui.infra.FontProvider.standardFont;
 import static eu.jrie.abacus.ui.infra.event.EventType.CELL_EDITOR_UPDATED;
 import static eu.jrie.abacus.ui.infra.event.EventType.CELL_FOCUS;
+import static eu.jrie.abacus.ui.infra.event.EventType.CELL_STYLE_CHANGED;
 import static eu.jrie.abacus.ui.infra.event.EventType.CELL_UPDATED;
 import static eu.jrie.abacus.ui.infra.event.EventType.CELL_VALUE_CHANGED;
 import static eu.jrie.abacus.ui.infra.helper.ListenerHelper.keyReleasedListener;
@@ -36,19 +38,24 @@ public class WorkbenchTable extends JTable {
     private final WorkbenchAccessor workbench;
     private final WorkbenchTableModel model;
     private final EventBus bus;
+    private final CellStyleRenderer renderer;
 
-    public WorkbenchTable(WorkbenchAccessor workbench, WorkbenchTableModel model, EventBus bus) {
+    public WorkbenchTable(WorkbenchAccessor workbench, WorkbenchTableModel model, EventBus bus, CellStyleRenderer renderer) {
         this.workbench = workbench;
         this.model = model;
         this.bus = bus;
+        this.renderer = renderer;
 
         setFont(standardFont());
         setColumnWidths();
         setAutoResizeMode(AUTO_RESIZE_OFF);
-        getTableHeader().setReorderingAllowed(false);
+        var header = getTableHeader();
+        header.setReorderingAllowed(false);
+        header.setResizingAllowed(true);
 
         setModel(model);
         setCellSelectionEnabled(true);
+        setRowHeight(22);
 
         bus.register("workbenchTableCellValueUpdate", CELL_VALUE_CHANGED, event -> {
             var updatedValue = workbench.getValueAsString(event.position());
@@ -62,6 +69,7 @@ public class WorkbenchTable extends JTable {
             editor.setText(event.text());
             sendUpdatedEvent(event.position(), event.text());
         });
+        bus.register("drawCellStyle", CELL_STYLE_CHANGED, event -> repaint());
 
         addPropertyChangeListener(propertyChangeListener("tableCellEditor", event -> {
             var selected = getSelected();
@@ -96,6 +104,7 @@ public class WorkbenchTable extends JTable {
 
     private JTextField getEditorField() {
         final var editor = (JTextField) getEditorComponent();
+        editor.setBorder(BorderFactory.createLineBorder(PRIMARY_COLOR, 2));
         if (editor.getKeyListeners().length == 0) {
             editor.addKeyListener(keyReleasedListener(event -> {
                 logger.info("ABC");
@@ -108,12 +117,12 @@ public class WorkbenchTable extends JTable {
     }
 
     private void sendFocusEvent(Position position, String text) {
-        var event = new Event(CELL_FOCUS, position, text);
+        var event = new Event(CELL_FOCUS, position, text, workbench.getCellStyle(position));
         bus.accept(event);
     }
 
     private void sendUpdatedEvent(Position position, String text) {
-        var event = new Event(CELL_UPDATED, position, text);
+        var event = new Event(CELL_UPDATED, position, text, workbench.getCellStyle(position));
         bus.accept(event);
     }
 
@@ -141,6 +150,8 @@ public class WorkbenchTable extends JTable {
     private void setColumnWidths() {
         if (columnModel.getColumnCount() > 0) {
             var rowAxisColumn = columnModel.getColumn(0);
+            rowAxisColumn.setWidth(35);
+            rowAxisColumn.setMinWidth(35);
             rowAxisColumn.setMaxWidth(35);
             var centerRenderer = new DefaultTableCellRenderer();
             centerRenderer.setHorizontalAlignment(CENTER);
@@ -149,8 +160,9 @@ public class WorkbenchTable extends JTable {
             range(1, getColumnCount())
                     .mapToObj(i -> columnModel.getColumn(i))
                     .forEach(column -> {
-                        column.setMinWidth(75);
-                        column.setMaxWidth(75);
+                        column.setCellRenderer(renderer);
+                        column.setMinWidth(15);
+                        column.setWidth(85);
                     });
         }
     }
