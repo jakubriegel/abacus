@@ -5,6 +5,7 @@ import eu.jrie.abacus.core.domain.cell.Position;
 import java.util.HashMap;
 import java.util.Map;
 
+import static eu.jrie.abacus.core.domain.cell.style.CellTextAlignment.LEFT;
 import static eu.jrie.abacus.core.domain.cell.style.CellTextPosition.MIDDLE;
 import static java.awt.Color.white;
 
@@ -15,6 +16,7 @@ public class CellStyleManager implements CellStyleModifier, CellStyleProvider {
             false,
             false,
             white,
+            LEFT,
             MIDDLE
     );
 

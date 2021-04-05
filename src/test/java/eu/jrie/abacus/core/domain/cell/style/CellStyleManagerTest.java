@@ -6,6 +6,7 @@ import org.junit.jupiter.api.Test;
 import java.util.HashMap;
 import java.util.Map;
 
+import static eu.jrie.abacus.core.domain.cell.style.CellTextAlignment.LEFT;
 import static eu.jrie.abacus.core.domain.cell.style.CellTextPosition.MIDDLE;
 import static eu.jrie.abacus.core.domain.cell.style.CellTextPosition.TOP;
 import static java.awt.Color.red;
@@ -15,7 +16,8 @@ import static org.junit.jupiter.api.Assertions.assertEquals;
 class CellStyleManagerTest {
 
     private static final Position POSITION = new Position(1, 2);
-    private static final CellStyle DEFAULT_STYLE = new CellStyle(false, false, false, white, MIDDLE);
+    private static final CellStyle STYLE = new CellStyle(true, false, false, red, LEFT, TOP);
+    private static final CellStyle DEFAULT_STYLE = new CellStyle(false, false, false, white, LEFT, MIDDLE);
 
     private final Map<Position, CellStyle> styles = new HashMap<>();
 
@@ -23,15 +25,12 @@ class CellStyleManagerTest {
 
     @Test
     void shouldSetStyle() {
-        // given
-        var style = new CellStyle(true, false, false, red, TOP);
-
         // when
-        manager.setStyle(POSITION, style);
+        manager.setStyle(POSITION, STYLE);
 
         // then
         assertEquals(1, styles.size());
-        assertEquals(style, styles.get(POSITION));
+        assertEquals(STYLE, styles.get(POSITION));
     }
 
     @Test
@@ -46,8 +45,7 @@ class CellStyleManagerTest {
     @Test
     void shouldRemoveEntryWhenSettingDefaultStyle() {
         // given
-        var style = new CellStyle(true, false, false, red, TOP);
-        styles.put(POSITION, style);
+        styles.put(POSITION, STYLE);
 
         // when
         manager.setStyle(POSITION, DEFAULT_STYLE);
@@ -59,15 +57,14 @@ class CellStyleManagerTest {
     @Test
     void shouldGetStyle() {
         // given
-        var style = new CellStyle(true, false, false, red, TOP);
-        styles.put(POSITION, style);
+        styles.put(POSITION, STYLE);
 
         // when
         var result = manager.getStyle(POSITION);
 
         // then
         assertEquals(1, styles.size());
-        assertEquals(style, result);
+        assertEquals(STYLE, result);
     }
 
     @Test

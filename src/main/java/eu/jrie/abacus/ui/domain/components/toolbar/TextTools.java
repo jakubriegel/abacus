@@ -2,6 +2,7 @@ package eu.jrie.abacus.ui.domain.components.toolbar;
 
 import eu.jrie.abacus.core.domain.cell.Position;
 import eu.jrie.abacus.core.domain.cell.style.CellStyle;
+import eu.jrie.abacus.core.domain.cell.style.CellTextAlignment;
 import eu.jrie.abacus.core.domain.cell.style.CellTextPosition;
 import eu.jrie.abacus.ui.domain.components.factory.IconButtonFactory;
 import eu.jrie.abacus.ui.infra.event.Event;
@@ -11,6 +12,10 @@ import javax.swing.*;
 import java.awt.*;
 
 import static eu.jrie.abacus.core.domain.cell.style.CellStyle.Builder.from;
+import static eu.jrie.abacus.core.domain.cell.style.CellTextAlignment.CENTER;
+import static eu.jrie.abacus.core.domain.cell.style.CellTextAlignment.JUSTIFY;
+import static eu.jrie.abacus.core.domain.cell.style.CellTextAlignment.LEFT;
+import static eu.jrie.abacus.core.domain.cell.style.CellTextAlignment.RIGHT;
 import static eu.jrie.abacus.core.domain.cell.style.CellTextPosition.BOTTOM;
 import static eu.jrie.abacus.core.domain.cell.style.CellTextPosition.MIDDLE;
 import static eu.jrie.abacus.core.domain.cell.style.CellTextPosition.TOP;
@@ -40,6 +45,13 @@ public class TextTools extends JPanel {
     private Position cellPosition = null;
     private CellStyle cellStyle = null;
 
+    // top tools
+
+    private final JButton alignLeftButton;
+    private final JButton alignCenterButton;
+    private final JButton alignRightButton;
+    private final JButton justifyButton;
+
     // bottom tools
     private final JButton boldButton;
     private final JButton italicButton;
@@ -61,10 +73,10 @@ public class TextTools extends JPanel {
         button(top, "Change font size", "round_format_size_black_48dp.png");
         colorTile(top, gray);
         button(top, "Choose font size", "../round_expand_more_black_48dp.png");
-        button(top, "Align text left", "round_format_align_left_black_48dp.png");
-        button(top, "Align text center", "round_format_align_center_black_48dp.png");
-        button(top, "Align text right", "round_format_align_right_black_48dp.png");
-        button(top, "Justify text", "round_format_align_justify_black_48dp.png");
+        alignLeftButton = button(top, "Align text left", "round_format_align_left_black_48dp.png", () -> switchTextAlignment(LEFT));
+        alignCenterButton = button(top, "Align text center", "round_format_align_center_black_48dp.png", () -> switchTextAlignment(CENTER));
+        alignRightButton = button(top, "Align text right", "round_format_align_right_black_48dp.png", () -> switchTextAlignment(RIGHT));
+        justifyButton = button(top, "Justify text", "round_format_align_justify_black_48dp.png", () -> switchTextAlignment(JUSTIFY));
         button(top, "Change text color", "round_format_color_text_black_48dp.png");
         colorTile(top, black);
         button(top, "Choose text color", "../round_expand_more_black_48dp.png");
@@ -85,6 +97,42 @@ public class TextTools extends JPanel {
 
         bus.register("updateTextEditorStateOnUpdate", CELL_UPDATED, event -> update(event.position(), event.cellStyle()));
         bus.register("updateTextEditorStateOnFocus", CELL_FOCUS, event -> update(event.position(), event.cellStyle()));
+    }
+
+    private void switchTextAlignment(CellTextAlignment textAlignment) {
+        var updatedStyle = from(cellStyle)
+                .withTextAlignment(textAlignment)
+                .build();
+        updateStyle(updatedStyle);
+    }
+
+    private void updateTextAlignment() {
+        switch (cellStyle.textAlignment()) {
+            case LEFT -> {
+                switchButton(alignLeftButton, true);
+                switchButton(alignCenterButton, false);
+                switchButton(alignRightButton, false);
+                switchButton(justifyButton, false);
+            }
+            case CENTER -> {
+                switchButton(alignLeftButton, false);
+                switchButton(alignCenterButton, true);
+                switchButton(alignRightButton, false);
+                switchButton(justifyButton, false);
+            }
+            case RIGHT -> {
+                switchButton(alignLeftButton, false);
+                switchButton(alignCenterButton, false);
+                switchButton(alignRightButton, true);
+                switchButton(justifyButton, false);
+            }
+            case JUSTIFY -> {
+                switchButton(alignLeftButton, false);
+                switchButton(alignCenterButton, false);
+                switchButton(alignRightButton, false);
+                switchButton(justifyButton, true);
+            }
+        }
     }
 
     private void switchBold() {
@@ -162,6 +210,7 @@ public class TextTools extends JPanel {
         updateBold();
         updateItalic();
         updateUnderlined();
+        updateTextAlignment();
         updateTextPosition();
         bus.accept(new Event(CELL_STYLE_UPDATED, cellPosition, null, updatedStyle));
     }

@@ -8,7 +8,7 @@ public record CellStyle(
         boolean isUnderlined,
 //            Color fontColor,
         Color backgroundColor,
-//            CellTextAlign textAlign,
+        CellTextAlignment textAlignment,
         CellTextPosition textPosition
 //            int fontSize
 ) {
@@ -18,14 +18,23 @@ public record CellStyle(
         private boolean isItalic;
         private boolean isUnderlined;
         private Color backgroundColor;
+        private CellTextAlignment textAlignment;
         private CellTextPosition textPosition;
 
-        private Builder(boolean isBold, boolean isItalic, boolean isUnderlined, Color backgroundColor, CellTextPosition cellTextPosition) {
+        public Builder(
+                boolean isBold,
+                boolean isItalic,
+                boolean isUnderlined,
+                Color backgroundColor,
+                CellTextAlignment textAlignment,
+                CellTextPosition textPosition
+        ) {
             this.isBold = isBold;
             this.isItalic = isItalic;
             this.isUnderlined = isUnderlined;
             this.backgroundColor = backgroundColor;
-            this.textPosition = cellTextPosition;
+            this.textAlignment = textAlignment;
+            this.textPosition = textPosition;
         }
 
         public static Builder from(CellStyle style) {
@@ -34,6 +43,7 @@ public record CellStyle(
                     style.isItalic(),
                     style.isUnderlined(),
                     style.backgroundColor(),
+                    style.textAlignment(),
                     style.textPosition()
             );
         }
@@ -53,13 +63,18 @@ public record CellStyle(
             return this;
         }
 
+        public Builder withTextAlignment(CellTextAlignment textAlignment) {
+            this.textAlignment = textAlignment;
+            return this;
+        }
+
         public Builder withTextPosition(CellTextPosition position) {
             this.textPosition = position;
             return this;
         }
 
         public CellStyle build() {
-            return new CellStyle(isBold, isItalic, isUnderlined, backgroundColor, textPosition);
+            return new CellStyle(isBold, isItalic, isUnderlined, backgroundColor, textAlignment, textPosition);
         }
     }
 }
