@@ -3,6 +3,7 @@ package eu.jrie.abacus.core.domain.cell.style;
 import java.awt.*;
 
 public record CellStyle(
+        float fontSize,
         boolean isBold,
         boolean isItalic,
         boolean isUnderlined,
@@ -10,10 +11,10 @@ public record CellStyle(
         Color backgroundColor,
         CellTextAlignment textAlignment,
         CellTextPosition textPosition
-//            int fontSize
 ) {
     public static class Builder {
 
+        private float fontSize;
         private boolean isBold;
         private boolean isItalic;
         private boolean isUnderlined;
@@ -22,6 +23,7 @@ public record CellStyle(
         private CellTextPosition textPosition;
 
         public Builder(
+                float fontSize,
                 boolean isBold,
                 boolean isItalic,
                 boolean isUnderlined,
@@ -29,6 +31,7 @@ public record CellStyle(
                 CellTextAlignment textAlignment,
                 CellTextPosition textPosition
         ) {
+            this.fontSize = fontSize;
             this.isBold = isBold;
             this.isItalic = isItalic;
             this.isUnderlined = isUnderlined;
@@ -39,6 +42,7 @@ public record CellStyle(
 
         public static Builder from(CellStyle style) {
             return new Builder(
+                    style.fontSize(),
                     style.isBold(),
                     style.isItalic(),
                     style.isUnderlined(),
@@ -46,6 +50,11 @@ public record CellStyle(
                     style.textAlignment(),
                     style.textPosition()
             );
+        }
+
+        public Builder  withFontSize(float fontSize) {
+            this.fontSize = fontSize;
+            return this;
         }
 
         public Builder withBold(boolean isBold) {
@@ -74,7 +83,12 @@ public record CellStyle(
         }
 
         public CellStyle build() {
-            return new CellStyle(isBold, isItalic, isUnderlined, backgroundColor, textAlignment, textPosition);
+            return new CellStyle(
+                    fontSize,
+                    isBold, isItalic, isUnderlined,
+                    backgroundColor,
+                    textAlignment, textPosition
+            );
         }
     }
 }

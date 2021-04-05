@@ -10,6 +10,7 @@ import eu.jrie.abacus.ui.infra.event.EventBus;
 
 import javax.swing.*;
 import java.awt.*;
+import java.util.Optional;
 
 import static eu.jrie.abacus.core.domain.cell.style.CellStyle.Builder.from;
 import static eu.jrie.abacus.core.domain.cell.style.CellTextAlignment.CENTER;
@@ -20,15 +21,16 @@ import static eu.jrie.abacus.core.domain.cell.style.CellTextPosition.BOTTOM;
 import static eu.jrie.abacus.core.domain.cell.style.CellTextPosition.MIDDLE;
 import static eu.jrie.abacus.core.domain.cell.style.CellTextPosition.TOP;
 import static eu.jrie.abacus.ui.domain.Colors.LIGHT_COLOR;
+import static eu.jrie.abacus.ui.infra.FontProvider.DEFAULT_FONT_SIZE;
 import static eu.jrie.abacus.ui.infra.event.EventType.CELL_FOCUS;
 import static eu.jrie.abacus.ui.infra.event.EventType.CELL_STYLE_UPDATED;
 import static eu.jrie.abacus.ui.infra.event.EventType.CELL_UPDATED;
 import static eu.jrie.abacus.ui.infra.helper.ComponentHelper.setConstantSize;
 import static java.awt.Color.black;
-import static java.awt.Color.gray;
 import static java.awt.Color.white;
 import static java.util.Objects.requireNonNull;
 import static javax.swing.BorderFactory.createCompoundBorder;
+import static javax.swing.BorderFactory.createEmptyBorder;
 import static javax.swing.BorderFactory.createLineBorder;
 import static javax.swing.BoxLayout.X_AXIS;
 import static javax.swing.BoxLayout.Y_AXIS;
@@ -46,7 +48,7 @@ public class TextTools extends JPanel {
     private CellStyle cellStyle = null;
 
     // top tools
-
+    private final JComboBox<Integer> fontSizePicker;
     private final JButton alignLeftButton;
     private final JButton alignCenterButton;
     private final JButton alignRightButton;
@@ -71,8 +73,7 @@ public class TextTools extends JPanel {
         var bottom = container();
 
         button(top, "Change font size", "round_format_size_black_48dp.png");
-        colorTile(top, gray);
-        button(top, "Choose font size", "../round_expand_more_black_48dp.png");
+        fontSizePicker = fontSizePicker(top);
         alignLeftButton = button(top, "Align text left", "round_format_align_left_black_48dp.png", () -> switchTextAlignment(LEFT));
         alignCenterButton = button(top, "Align text center", "round_format_align_center_black_48dp.png", () -> switchTextAlignment(CENTER));
         alignRightButton = button(top, "Align text right", "round_format_align_right_black_48dp.png", () -> switchTextAlignment(RIGHT));
@@ -97,6 +98,17 @@ public class TextTools extends JPanel {
 
         bus.register("updateTextEditorStateOnUpdate", CELL_UPDATED, event -> update(event.position(), event.cellStyle()));
         bus.register("updateTextEditorStateOnFocus", CELL_FOCUS, event -> update(event.position(), event.cellStyle()));
+    }
+
+    private void switchFontSize(float size) {
+        var updatedStyle = from(cellStyle)
+                .withFontSize(size)
+                .build();
+        updateStyle(updatedStyle);
+    }
+
+    private void updateFontSize() {
+        fontSizePicker.setSelectedItem((int) cellStyle.fontSize());
     }
 
     private void switchTextAlignment(CellTextAlignment textAlignment) {
@@ -207,6 +219,7 @@ public class TextTools extends JPanel {
 
     private void updateStyle(CellStyle updatedStyle) {
         this.cellStyle = updatedStyle;
+        updateFontSize();
         updateBold();
         updateItalic();
         updateUnderlined();
@@ -241,6 +254,27 @@ public class TextTools extends JPanel {
         setConstantSize(panel, BUTTON_SIZE, BUTTON_SIZE);
         container.add(panel);
         return panel;
+    }
+
+    private JComboBox<Integer> fontSizePicker(JPanel container) {
+        var panel = new JPanel();
+        panel.setLayout(new BorderLayout());
+        panel.setBorder(createCompoundBorder(createEmptyBorder(), createEmptyBorder()));
+
+        var picker = new JComboBox<>(new Integer[]{6, 7, 8, 9, 10, 11, 12, 14, 18, 24, 36});
+        picker.setToolTipText("Choose font size");
+        picker.setBackground(white);
+        picker.addActionListener(e -> {
+            var newSize = Optional.ofNullable(picker.getSelectedItem())
+                    .map(size -> (Integer) size)
+                    .map(Integer::floatValue)
+                    .orElse(DEFAULT_FONT_SIZE);
+            switchFontSize(newSize);
+        });
+
+        panel.add(picker);
+        container.add(panel);
+        return picker;
     }
 
     private JButton button(JPanel panel, String text, String iconName) {

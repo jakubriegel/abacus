@@ -35,7 +35,7 @@ class CellStyleRendererTest {
         var row = position.y();
 
         // and
-        var style = new CellStyle(true, true, true, red, LEFT, TOP);
+        var style = new CellStyle(15f, true, true, true, red, LEFT, TOP);
         when(styleProvider.getStyle(position)).thenReturn(style);
 
         // when
@@ -50,6 +50,7 @@ class CellStyleRendererTest {
         assertEquals(style.backgroundColor(), result.getBackground());
         assertEquals(DefaultTableCellRenderer.TOP, ((DefaultTableCellRenderer) result).getVerticalAlignment());
         assertEquals(DefaultTableCellRenderer.LEFT, ((DefaultTableCellRenderer) result).getHorizontalAlignment());
+        assertEquals(15, result.getFont().getSize());
     }
 
     @Test
@@ -60,7 +61,7 @@ class CellStyleRendererTest {
         var row = position.y();
 
         // and
-        var style = new CellStyle(false, false, true, red, LEFT, TOP);
+        var style = new CellStyle(12f, false, false, true, red, LEFT, TOP);
         when(styleProvider.getStyle(position)).thenReturn(style);
 
         // when
@@ -81,7 +82,7 @@ class CellStyleRendererTest {
         var row = position.y();
 
         // and
-        var style = new CellStyle(false, false, false, red, LEFT, TOP);
+        var style = new CellStyle(12f, false, false, false, red, LEFT, TOP);
         when(styleProvider.getStyle(position)).thenReturn(style);
 
         // when

@@ -7,11 +7,13 @@ import java.util.Map;
 
 import static eu.jrie.abacus.core.domain.cell.style.CellTextAlignment.LEFT;
 import static eu.jrie.abacus.core.domain.cell.style.CellTextPosition.MIDDLE;
+import static eu.jrie.abacus.ui.infra.FontProvider.DEFAULT_FONT_SIZE;
 import static java.awt.Color.white;
 
 public class CellStyleManager implements CellStyleModifier, CellStyleProvider {
 
     private static final CellStyle DEFAULT_STYLE = new CellStyle(
+            DEFAULT_FONT_SIZE,
             false,
             false,
             false,

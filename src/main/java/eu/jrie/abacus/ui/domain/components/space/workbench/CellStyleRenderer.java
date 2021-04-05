@@ -48,6 +48,7 @@ public class CellStyleRenderer extends DefaultTableCellRenderer {
         applyBackground(cell, style);
         applyPosition(cell, style);
         applyAlign(cell, style);
+        applyFontSize(cell, style);
     }
 
     private static void applyBoldAndItalic(Component cell, CellStyle style) {
@@ -88,6 +89,11 @@ public class CellStyleRenderer extends DefaultTableCellRenderer {
             case JUSTIFY -> DefaultTableCellRenderer.LEADING;
         };
         ((DefaultTableCellRenderer) cell).setHorizontalAlignment(align);
+    }
+
+    private static void applyFontSize(Component cell, CellStyle style) {
+        var font = cell.getFont();
+        cell.setFont(font.deriveFont(style.fontSize()));
     }
 
 }
