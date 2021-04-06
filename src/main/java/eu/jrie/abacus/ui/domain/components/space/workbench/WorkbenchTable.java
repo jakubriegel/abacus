@@ -57,10 +57,7 @@ public class WorkbenchTable extends JTable {
         setCellSelectionEnabled(true);
         setRowHeight(22);
 
-        bus.register("workbenchTableCellValueUpdate", CELL_VALUE_CHANGED, event -> {
-            var updatedValue = workbench.getValueAsString(event.position());
-            setValue(updatedValue, event.position());
-        });
+        bus.register("workbenchTableCellValueUpdate", CELL_VALUE_CHANGED, event -> updateContent());
         bus.register("workbenchTableEditorUpdate", CELL_EDITOR_UPDATED, event -> {
             if (!isEditing()) {
                 editCellAt(event.position());
@@ -96,6 +93,17 @@ public class WorkbenchTable extends JTable {
             var selected = getSelected();
             sendFocusEvent(selected, workbench.getText(selected));
         }));
+    }
+
+    private void updateContent() {
+        repaint();
+        for (int x = 1; x < getColumnCount(); x++) {
+            for (int y = 0; y < getRowCount(); y++) {
+                var position = new Position(x - 1, y);
+                var value = workbench.getValueAsString(position);
+                setValue(value, position);
+            }
+        }
     }
 
     private void editCellAt(Position position) {

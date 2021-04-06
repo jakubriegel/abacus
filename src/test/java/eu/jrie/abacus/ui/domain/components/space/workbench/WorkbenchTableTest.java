@@ -26,6 +26,7 @@ import static org.junit.jupiter.api.Assertions.assertEquals;
 import static org.junit.jupiter.api.Assertions.assertFalse;
 import static org.junit.jupiter.api.Assertions.assertTrue;
 import static org.mockito.ArgumentMatchers.any;
+import static org.mockito.ArgumentMatchers.anyInt;
 import static org.mockito.ArgumentMatchers.eq;
 import static org.mockito.Mockito.atLeast;
 import static org.mockito.Mockito.doNothing;
@@ -33,6 +34,7 @@ import static org.mockito.Mockito.doReturn;
 import static org.mockito.Mockito.mock;
 import static org.mockito.Mockito.never;
 import static org.mockito.Mockito.spy;
+import static org.mockito.Mockito.times;
 import static org.mockito.Mockito.verify;
 import static org.mockito.Mockito.when;
 
@@ -65,7 +67,8 @@ class WorkbenchTableTest extends UITest {
         var actionCaptor = ArgumentCaptor.forClass(EventAction.class);
 
         // when
-        new WorkbenchTable(workbench, model, bus, renderer);
+        var table = new WorkbenchTable(workbench, model, bus, renderer);
+        addCells(table);
 
         // then
         verify(bus).register(eq("workbenchTableCellValueUpdate"), eq(CELL_VALUE_CHANGED), actionCaptor.capture());
@@ -76,15 +79,15 @@ class WorkbenchTableTest extends UITest {
 
         // and
         var value = "newValue";
-        when(workbench.getCell(position)).thenReturn(new Cell(position, false, null, new TextValue(value)));
+        when(workbench.getCell(position)).thenReturn(new Cell(position, null, null, new TextValue(value)));
         doNothing().when(model).setValueAt(value, position.y(), position.x()+1);
 
         // when
         action.accept(event);
 
         // then
-        verify(workbench).getValueAsString(position);
-        verify(model).setValueAt(value, position.y(), position.x()+1);
+        verify(workbench, atLeast(9)).getValueAsString(any());
+        verify(model, times(9)).setValueAt(any(), anyInt(), anyInt());
         verify(bus, never()).accept(any());
     }
 
@@ -241,7 +244,7 @@ class WorkbenchTableTest extends UITest {
     }
 
     private void addCells(WorkbenchTable table) {
-        var value = new Cell(null, false, "text", new TextValue("value"));
+        var value = new Cell(null, null, "text", new TextValue("value"));
         when(workbench.getCell(any())).thenReturn(value);
         table.newColumn();
         table.newColumn();

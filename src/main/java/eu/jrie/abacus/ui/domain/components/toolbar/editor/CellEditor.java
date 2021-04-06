@@ -105,7 +105,7 @@ public class CellEditor extends JTextArea {
     }
 
     private void updateSymbol() {
-        if (cell.isFormula()) {
+        if (cell.hasFormula()) {
             symbol.set(formulaIcon);
         } else if (cell.getValue() instanceof NumberValue) {
             symbol.set(numberIcon);
