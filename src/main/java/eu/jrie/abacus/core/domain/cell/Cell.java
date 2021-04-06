@@ -1,5 +1,6 @@
 package eu.jrie.abacus.core.domain.cell;
 
+import eu.jrie.abacus.core.domain.expression.Formula;
 import eu.jrie.abacus.core.domain.expression.Value;
 
 import java.util.Optional;
@@ -7,7 +8,7 @@ import java.util.Optional;
 public class Cell {
 
     private final Position position;
-    private boolean formula;
+    private Formula formula;
     private String text;
     private Value value;
 
@@ -16,7 +17,7 @@ public class Cell {
         this.value = null;
     }
 
-    public Cell(Position position, boolean formula, String text, Value value) {
+    public Cell(Position position, Formula formula, String text, Value value) {
         this.position = position;
         this.formula = formula;
         this.text = text;
@@ -62,11 +63,15 @@ public class Cell {
         this.text = text;
     }
 
-    public boolean isFormula() {
+    public Formula getFormula() {
         return formula;
     }
 
-    public void setFormula(boolean formula) {
+    public boolean hasFormula() {
+        return formula != null;
+    }
+
+    public void setFormula(Formula formula) {
         this.formula = formula;
     }
 

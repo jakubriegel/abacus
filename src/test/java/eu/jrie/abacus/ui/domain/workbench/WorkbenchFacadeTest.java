@@ -33,7 +33,7 @@ class WorkbenchFacadeTest {
     @Test
     void shouldGetCell() {
         // given
-        var cell = new Cell(position, false, null, null);
+        var cell = new Cell(position, null, null, null);
         when(workbench.getCell(position)).thenReturn(cell);
 
         // when
@@ -47,7 +47,7 @@ class WorkbenchFacadeTest {
     void shouldGetCellText() {
         // given
         var text = "text";
-        var cell = new Cell(position, false, text, null);
+        var cell = new Cell(position, null, text, null);
         when(workbench.getCell(position)).thenReturn(cell);
 
         // when
@@ -62,7 +62,7 @@ class WorkbenchFacadeTest {
         // given
         var text = "text";
         var value = new TextValue("value");
-        var cell = new Cell(position, false, text,  value);
+        var cell = new Cell(position, null, text,  value);
         when(workbench.getCell(position)).thenReturn(cell);
 
         // when

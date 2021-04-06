@@ -68,7 +68,7 @@ public class Workbench {
     }
 
     private void updateCellWithFormula(Formula formula, Cell cell) throws FormulaExecutionException {
-        cell.setFormula(true);
+        cell.setFormula(formula);
         try {
             var value = formula.calculateValue();
             cell.setValue(value);
@@ -79,14 +79,7 @@ public class Workbench {
     }
 
     private void updateCellWithValue(Value value, Cell cell) {
-        cell.setFormula(false);
+        cell.setFormula(null);
         cell.setValue(value);
     }
-
-    public String getValueAt(Position position) {
-        return cellManager.getCell(position).getValueAsString();
-    }
-
-
-
 }
