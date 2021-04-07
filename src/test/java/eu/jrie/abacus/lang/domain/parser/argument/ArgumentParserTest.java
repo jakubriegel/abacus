@@ -6,8 +6,8 @@ import eu.jrie.abacus.core.domain.expression.TextValue;
 import eu.jrie.abacus.core.domain.expression.Value;
 import eu.jrie.abacus.core.domain.formula.ArgumentValueSupplier;
 import eu.jrie.abacus.core.domain.formula.FormulaImplementation;
-import eu.jrie.abacus.lang.domain.exception.InvalidArgumentNumberException;
-import eu.jrie.abacus.lang.domain.exception.InvalidArgumentTypeException;
+import eu.jrie.abacus.lang.domain.exception.formula.InvalidArgumentNumberException;
+import eu.jrie.abacus.lang.domain.exception.formula.InvalidArgumentTypeException;
 import eu.jrie.abacus.lang.domain.grammar.TokenMatch;
 import org.junit.jupiter.api.Test;
 

@@ -13,7 +13,7 @@ public class WorkbenchContext {
     private final CellManager cellManager;
     private final FormulaManager formulaManager;
 
-    WorkbenchContext(CellManager cellManager, FormulaManager formulaManager) {
+    public WorkbenchContext(CellManager cellManager, FormulaManager formulaManager) {
         this.cellManager = cellManager;
         this.formulaManager = formulaManager;
     }

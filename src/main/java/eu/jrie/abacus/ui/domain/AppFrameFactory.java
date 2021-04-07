@@ -4,6 +4,7 @@ import eu.jrie.abacus.core.domain.cell.CellManager;
 import eu.jrie.abacus.core.domain.cell.style.CellStyleManager;
 import eu.jrie.abacus.core.domain.formula.FormulaManager;
 import eu.jrie.abacus.core.domain.workbench.Workbench;
+import eu.jrie.abacus.core.domain.workbench.WorkbenchContext;
 import eu.jrie.abacus.ui.domain.components.factory.ComponentFactory;
 import eu.jrie.abacus.ui.domain.components.space.Space;
 import eu.jrie.abacus.ui.domain.components.space.UtilsMenu;
@@ -23,6 +24,7 @@ import eu.jrie.abacus.ui.infra.ResourcesProvider;
 import eu.jrie.abacus.ui.infra.event.EventBus;
 
 import static eu.jrie.abacus.core.domain.formula.Formulas.buildFormulas;
+import static eu.jrie.abacus.lang.domain.parser.ParserFactory.buildParser;
 
 public abstract class AppFrameFactory {
 
@@ -44,7 +46,8 @@ public abstract class AppFrameFactory {
         var cellManager = new CellManager();
         var formulas = buildFormulas();
         var formulaManager = new FormulaManager(formulas);
-        return new Workbench(cellManager, cellStyleManager, formulaManager);
+        var parser = buildParser(new WorkbenchContext(cellManager, formulaManager));
+        return new Workbench(cellManager, cellStyleManager, parser);
     }
 
     private static Toolbar buildToolbar() {

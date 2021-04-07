@@ -15,6 +15,7 @@ class CellManagerTest {
 
     private final Map<Position, Cell> cells = new HashMap<>();
     private final Position position = new Position(1, 2);
+    private final TextValue textValue = new TextValue("abc");
 
     private final CellManager manager = new CellManager(cells);
 
@@ -31,7 +32,7 @@ class CellManagerTest {
     @Test
     void shouldGetCellWithNoFormula() {
         // given
-        var cell = new Cell(position, null, "abc", new TextValue("abc"));
+        var cell = new Cell(position, null, textValue.value(), textValue);
         cells.put(position, cell);
 
         // when
@@ -51,7 +52,7 @@ class CellManagerTest {
             formulaCalled.set(true);
             return updatedValue;
         });
-        var cell = new Cell(position, formula, "abc", new TextValue("abc"));
+        var cell = new Cell(position, formula, textValue.value(), textValue);
         cells.put(position, cell);
 
         // when
@@ -59,6 +60,24 @@ class CellManagerTest {
 
         // then
         assertEquals(new Cell(position, formula, updatedValue.value(), updatedValue), result);
+        assertEquals(1, cells.size());
+    }
+
+    @Test
+    void shouldSetPlaceholderWhenUpdateFailed() {
+        // given
+        var placeHolderValue = new TextValue("Calculation Error");
+        var formula = new Formula("formula", emptyList(), () -> {
+            throw new RuntimeException();
+        });
+        var cell = new Cell(position, formula, textValue.value(), textValue);
+        cells.put(position, cell);
+
+        // when
+        var result = manager.getCell(position);
+
+        // then
+        assertEquals(new Cell(position, null, placeHolderValue.value(), textValue), result);
         assertEquals(1, cells.size());
     }
 
