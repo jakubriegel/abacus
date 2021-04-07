@@ -26,9 +26,20 @@ public class CellStyleRenderer extends DefaultTableCellRenderer {
 
     @Override
     public Component getTableCellRendererComponent(JTable table, Object value, boolean isSelected, boolean hasFocus, int row, int column) {
-        var cell = super.getTableCellRendererComponent(table, value, isSelected, hasFocus, row, column);
+        var cell = (CellStyleRenderer) super.getTableCellRendererComponent(table, value, isSelected, hasFocus, row, column);
         applyStyle(cell, row, column);
+        setToolTip(cell);
         return cell;
+    }
+
+    private static void setToolTip(CellStyleRenderer cell) {
+        var text = cell.getText();
+        if (text.isEmpty()) {
+            cell.setToolTipText(null);
+        } else {
+            cell.setToolTipText(text);
+        }
+
     }
 
     private CellStyle getStyle(int row, int column) {

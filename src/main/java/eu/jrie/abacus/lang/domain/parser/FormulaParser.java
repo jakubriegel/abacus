@@ -2,9 +2,9 @@ package eu.jrie.abacus.lang.domain.parser;
 
 import eu.jrie.abacus.core.domain.expression.Formula;
 import eu.jrie.abacus.core.domain.workbench.WorkbenchContext;
-import eu.jrie.abacus.lang.domain.exception.CouldNotMatchFormulaDefinitionException;
 import eu.jrie.abacus.lang.domain.exception.InvalidInputException;
-import eu.jrie.abacus.lang.domain.exception.UnknownSyntaxException;
+import eu.jrie.abacus.lang.domain.exception.formula.CouldNotMatchFormulaDefinitionException;
+import eu.jrie.abacus.lang.domain.exception.formula.UnknownSyntaxException;
 import eu.jrie.abacus.lang.domain.grammar.GrammarElement;
 import eu.jrie.abacus.lang.domain.grammar.GrammarRule;
 import eu.jrie.abacus.lang.domain.grammar.Token;
