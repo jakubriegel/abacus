@@ -1,5 +1,6 @@
 package eu.jrie.abacus.lang.domain.parser.argument;
 
+import eu.jrie.abacus.core.domain.expression.Formula;
 import eu.jrie.abacus.core.domain.expression.LogicValue;
 import eu.jrie.abacus.core.domain.expression.NumberValue;
 import eu.jrie.abacus.core.domain.expression.TextValue;
@@ -8,7 +9,10 @@ import eu.jrie.abacus.core.domain.formula.ArgumentValueSupplier;
 import eu.jrie.abacus.core.domain.formula.FormulaImplementation;
 import eu.jrie.abacus.lang.domain.exception.formula.InvalidArgumentNumberException;
 import eu.jrie.abacus.lang.domain.exception.formula.InvalidArgumentTypeException;
+import eu.jrie.abacus.lang.domain.grammar.ElementMatch;
+import eu.jrie.abacus.lang.domain.grammar.RuleMatch;
 import eu.jrie.abacus.lang.domain.grammar.TokenMatch;
+import eu.jrie.abacus.lang.domain.grammar.rule.Function;
 import org.junit.jupiter.api.Test;
 
 import java.util.List;
@@ -17,6 +21,7 @@ import static eu.jrie.abacus.lang.domain.grammar.Token.CELL_REFERENCE;
 import static eu.jrie.abacus.lang.domain.grammar.Token.LOGIC_TRUE_VALUE;
 import static eu.jrie.abacus.lang.domain.grammar.Token.NUMBER_VALUE;
 import static eu.jrie.abacus.lang.domain.grammar.Token.TEXT_VALUE;
+import static java.util.Collections.emptyList;
 import static java.util.Collections.singletonList;
 import static java.util.stream.Collectors.toUnmodifiableList;
 import static org.junit.jupiter.api.Assertions.assertIterableEquals;
@@ -45,12 +50,12 @@ class ArgumentParserTest {
         // and
         var argText = "A1";
         var cellText = "abc";
-        var args = singletonList(new TokenMatch(CELL_REFERENCE, argText, argText));
+        List<ElementMatch> args = singletonList(new TokenMatch(CELL_REFERENCE, argText, argText));
         var expectedArgValue = new TextValue(cellText);
         when(cellReferenceResolver.resolve(argText)).thenReturn(c -> expectedArgValue);
 
         // when
-        var result = argumentParser.parseArgs(impl, args);
+        var result = argumentParser.parseArgs(impl, args, null);
 
         // then
         verify(cellReferenceResolver).resolve(argText);
@@ -67,12 +72,12 @@ class ArgumentParserTest {
 
         // and
         var argText = "abc";
-        var args = singletonList(new TokenMatch(TEXT_VALUE, argText, argText));
+        List<ElementMatch> args = singletonList(new TokenMatch(TEXT_VALUE, argText, argText));
         var expectedArgValue = new TextValue(argText);
         when(textValueResolver.resolve(argText)).thenReturn(c -> expectedArgValue);
 
         // when
-        var result = argumentParser.parseArgs(impl, args);
+        var result = argumentParser.parseArgs(impl, args, null);
 
         // then
         verify(textValueResolver).resolve(argText);
@@ -89,12 +94,12 @@ class ArgumentParserTest {
 
         // and
         var argText = "1";
-        var args = singletonList(new TokenMatch(NUMBER_VALUE, argText, argText));
+        List<ElementMatch> args = singletonList(new TokenMatch(NUMBER_VALUE, argText, argText));
         var expectedArgValue = new NumberValue(argText);
         when(numberValueResolver.resolve(argText)).thenReturn(c -> expectedArgValue);
 
         // when
-        var result = argumentParser.parseArgs(impl, args);
+        var result = argumentParser.parseArgs(impl, args, null);
 
         // then
         verify(numberValueResolver).resolve(argText);
@@ -111,12 +116,12 @@ class ArgumentParserTest {
 
         // and
         var argText = "true";
-        var args = singletonList(new TokenMatch(LOGIC_TRUE_VALUE, argText, argText));
+        List<ElementMatch> args = singletonList(new TokenMatch(LOGIC_TRUE_VALUE, argText, argText));
         var expectedArgValue = new LogicValue(true);
         when(logicValueResolver.resolve(argText)).thenReturn(c -> expectedArgValue);
 
         // when
-        var result = argumentParser.parseArgs(impl, args);
+        var result = argumentParser.parseArgs(impl, args, null);
 
         // then
         verify(logicValueResolver).resolve(argText);
@@ -133,16 +138,37 @@ class ArgumentParserTest {
 
         // and
         var argText = "false";
-        var args = singletonList(new TokenMatch(LOGIC_TRUE_VALUE, argText, argText));
+        List<ElementMatch> args = singletonList(new TokenMatch(LOGIC_TRUE_VALUE, argText, argText));
         var expectedArgValue = new LogicValue(false);
         when(logicValueResolver.resolve(argText)).thenReturn(c -> expectedArgValue);
 
         // when
-        var result = argumentParser.parseArgs(impl, args);
+        var result = argumentParser.parseArgs(impl, args, null);
 
         // then
         verify(logicValueResolver).resolve(argText);
         verifyNoInteractions(cellReferenceResolver, numberValueResolver, textValueResolver);
+        assertIterableEquals(singletonList(expectedArgValue), getValues(result));
+    }
+
+    @Test
+    void shouldParseFunctionArgument() throws InvalidArgumentNumberException, InvalidArgumentTypeException {
+        // given
+        var impl = mock(FormulaImplementation.class);
+        when(impl.isVararg()).thenReturn(false);
+        when(impl.getArgumentTypes()).thenReturn(singletonList(NumberValue.class));
+
+        // and
+        var argText = "1";
+        List<ElementMatch> args = singletonList(new RuleMatch(emptyList(), new Function()));
+        var expectedArgValue = new NumberValue(argText);
+        FormulaResolver formulaResolver = match -> new Formula("name", emptyList(), () -> expectedArgValue);
+
+        // when
+        var result = argumentParser.parseArgs(impl, args, formulaResolver);
+
+        // then
+        verifyNoInteractions(cellReferenceResolver, textValueResolver, numberValueResolver, logicValueResolver);
         assertIterableEquals(singletonList(expectedArgValue), getValues(result));
     }
 
@@ -156,14 +182,14 @@ class ArgumentParserTest {
         // and
         var arg1Text = "1";
         var arg2Text = "2";
-        var args = List.of(new TokenMatch(NUMBER_VALUE, arg1Text, arg1Text), new TokenMatch(NUMBER_VALUE, arg2Text, arg2Text));
+        List<ElementMatch> args = List.of(new TokenMatch(NUMBER_VALUE, arg1Text, arg1Text), new TokenMatch(NUMBER_VALUE, arg2Text, arg2Text));
         var expectedArg1Value = new NumberValue(arg1Text);
         var expectedArg2Value = new NumberValue(arg2Text);
         when(numberValueResolver.resolve(arg1Text)).thenReturn(c -> expectedArg1Value);
         when(numberValueResolver.resolve(arg2Text)).thenReturn(c -> expectedArg2Value);
 
         // when
-        var result = argumentParser.parseArgs(impl, args);
+        var result = argumentParser.parseArgs(impl, args, null);
 
         // then
         verify(numberValueResolver).resolve(arg1Text);

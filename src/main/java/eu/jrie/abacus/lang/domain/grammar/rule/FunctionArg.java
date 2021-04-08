@@ -16,6 +16,7 @@ public class FunctionArg implements GrammarRule {
     @Override
     public List<List<GrammarElement>> getTokens() {
         return List.of(
+                singletonList(new Function()),
                 singletonList(TEXT_VALUE),
                 singletonList(NUMBER_VALUE),
                 singletonList(CELL_REFERENCE),
