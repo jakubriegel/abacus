@@ -1,6 +1,6 @@
 plugins {
     id 'java'
-    id "com.github.johnrengelman.shadow" version "6.1.0"
+    id 'application'
 }
 
 group 'eu.jrie.abacus'
@@ -10,21 +10,12 @@ repositories {
     mavenCentral()
 }
 
+application {
+    mainClass = "eu.jrie.abacus.Abacus"
+    applicationDefaultJvmArgs = ['--enable-preview']
+}
+
 sourceCompatibility = JavaVersion.VERSION_15
-
-sourceSets {
-    integration {
-        java.srcDir "$projectDir/src/integration/java"
-        resources.srcDir "$projectDir/src/integration/resources"
-        compileClasspath += main.output + test.output
-        runtimeClasspath += main.output + test.output
-    }
-}
-
-configurations {
-    integrationImplementation.extendsFrom testImplementation
-    integrationRuntime.extendsFrom testRuntimeOnly
-}
 
 dependencies {
     testImplementation 'org.junit.jupiter:junit-jupiter-api:5.7.1'
@@ -32,13 +23,6 @@ dependencies {
     testRuntimeOnly 'org.junit.jupiter:junit-jupiter-engine'
     testImplementation 'org.mockito:mockito-core:3.8.0'
 }
-
-task integrationTest(type: Test) {
-    testClassesDirs = sourceSets.integration.output.classesDirs
-    classpath = sourceSets.integration.runtimeClasspath
-}
-
-check.dependsOn integrationTest
 
 tasks.withType(JavaCompile) {
     options.compilerArgs += "--enable-preview"
@@ -52,13 +36,4 @@ tasks.withType(Test) {
 
 tasks.withType(JavaExec) {
     jvmArgs += "--enable-preview"
-}
-
-shadowJar {
-    manifest {
-        attributes(["Main-Class": "eu.jrie.abacus.Abacus"])
-    }
-    archiveBaseName.set('abacus')
-    archiveClassifier.set('')
-    archiveVersion.set('')
 }
