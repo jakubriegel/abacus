@@ -15,23 +15,3 @@ jobs:
         run: ./gradlew clean test
         env:
           ABACUS_TEST_HEADLESS: 1
-  integration:
-    runs-on: ubuntu-latest
-    steps:
-      - uses: actions/checkout@v2
-      - name: Set up JDK 15
-        uses: actions/setup-java@v1
-        with:
-          java-version: 15
-      - name: integration tests
-        run: ./gradlew clean integrationTest
-  jar:
-    runs-on: ubuntu-latest
-    steps:
-      - uses: actions/checkout@v2
-      - name: Set up JDK 15
-        uses: actions/setup-java@v1
-        with:
-          java-version: 15
-      - name: shadow jar
-        run: ./gradlew clean shadowJar
