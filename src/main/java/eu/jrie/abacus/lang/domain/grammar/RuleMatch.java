@@ -5,8 +5,8 @@ import java.util.List;
 import static java.util.stream.Collectors.joining;
 
 public record RuleMatch(
-        List<ElementMatch> tokens,
-        GrammarRule rule
+        GrammarRule rule,
+        List<ElementMatch> tokens
 ) implements ElementMatch {
     @Override
     public String raw() {

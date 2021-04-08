@@ -24,4 +24,9 @@ public class FunctionArg implements GrammarRule {
                 singletonList(LOGIC_FALSE_VALUE)
         );
     }
+
+    @Override
+    public boolean equals(Object obj) {
+        return obj instanceof FunctionArg;
+    }
 }

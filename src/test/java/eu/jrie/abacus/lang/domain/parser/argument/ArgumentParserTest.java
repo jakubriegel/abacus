@@ -160,7 +160,7 @@ class ArgumentParserTest {
 
         // and
         var argText = "1";
-        List<ElementMatch> args = singletonList(new RuleMatch(emptyList(), new Function()));
+        List<ElementMatch> args = singletonList(new RuleMatch(new Function(), emptyList()));
         var expectedArgValue = new NumberValue(argText);
         FormulaResolver formulaResolver = match -> new Formula("name", emptyList(), () -> expectedArgValue);
 

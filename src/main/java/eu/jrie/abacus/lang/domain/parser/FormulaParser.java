@@ -11,10 +11,7 @@ import eu.jrie.abacus.lang.domain.exception.formula.InvalidArgumentNumberExcepti
 import eu.jrie.abacus.lang.domain.exception.formula.InvalidArgumentTypeException;
 import eu.jrie.abacus.lang.domain.exception.formula.UnknownSyntaxException;
 import eu.jrie.abacus.lang.domain.grammar.ElementMatch;
-import eu.jrie.abacus.lang.domain.grammar.GrammarElement;
-import eu.jrie.abacus.lang.domain.grammar.GrammarRule;
 import eu.jrie.abacus.lang.domain.grammar.RuleMatch;
-import eu.jrie.abacus.lang.domain.grammar.Token;
 import eu.jrie.abacus.lang.domain.grammar.TokenMatch;
 import eu.jrie.abacus.lang.domain.grammar.rule.Function;
 import eu.jrie.abacus.lang.domain.grammar.rule.FunctionArgs;
@@ -28,23 +25,23 @@ import java.util.Optional;
 import java.util.stream.Stream;
 
 import static eu.jrie.abacus.lang.domain.grammar.Token.FUNCTION_NAME;
-import static eu.jrie.abacus.lang.infra.ListTools.appended;
 import static java.util.Collections.emptyList;
-import static java.util.stream.Collectors.joining;
 import static java.util.stream.Collectors.toUnmodifiableList;
 
 class FormulaParser {
 
     private final WorkbenchContext context;
+    private final GrammarParser grammarParser;
     private final ArgumentParser argumentParser;
 
-    FormulaParser(WorkbenchContext context, ArgumentParser argumentParser) {
+    FormulaParser(WorkbenchContext context, GrammarParser grammarParser, ArgumentParser argumentParser) {
         this.context = context;
+        this.grammarParser = grammarParser;
         this.argumentParser = argumentParser;
     }
 
     Formula parse(String text) throws InvalidInputException {
-        final var matches = matchRule(new Function(), text.trim(), new LinkedList<>());
+        var matches = grammarParser.matchRule(new Function(), text.trim(), new LinkedList<>());
         if (matches == null || matches.size() != 1) {
             throw new UnknownSyntaxException();
         } else {
@@ -117,43 +114,4 @@ class FormulaParser {
         return argumentParser.parseArgs(definition, givenArguments, this::resolveFormula);
     }
 
-    private static List<ElementMatch> matchRule(GrammarRule rule, String text, List<ElementMatch> results) {
-        for (List<GrammarElement> elements : new LinkedList<>(rule.getTokens())) {
-            final var matches = match(new LinkedList<>(elements), text, new LinkedList<>());
-            if (matches != null && !matches.isEmpty()) {
-                return appended(results, new RuleMatch(matches, rule));
-            }
-        }
-        return null;
-    }
-
-    private static List<ElementMatch> match(List<GrammarElement> availableTokens, String text, List<ElementMatch> results) {
-        if (availableTokens.isEmpty()) {
-            return results;
-        } else {
-            final var element = availableTokens.remove(0);
-            if (element instanceof Token token) {
-                final var matcher = token.pattern.matcher(text);
-                if (!matcher.find() || matcher.start() != 0) {
-                    return null;
-                } else {
-                    var matched = matcher.group();
-                    var match = new TokenMatch(token, matched.trim(), matched);
-                    return match(availableTokens, text.substring(matcher.end()), appended(results, match));
-                }
-            } else if (element instanceof GrammarRule rule) {
-                final var matched = matchRule(rule, text, new LinkedList<>());
-                if (matched == null) {
-                    return null;
-                } else {
-                    var matchedText = matched.stream()
-                            .map(ElementMatch::raw)
-                            .collect(joining());
-                    return match(availableTokens, text.substring(matchedText.length()), appended(results, matched));
-                }
-            } else {
-                throw new IllegalStateException();
-            }
-        }
-    }
 }
