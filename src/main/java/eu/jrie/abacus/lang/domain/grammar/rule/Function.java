@@ -18,4 +18,9 @@ public final class Function implements GrammarRule {
                 List.of(FUNCTION_NAME, FUNCTION_ARGS_START, FUNCTION_ARGS_STOP)
         );
     }
+
+    @Override
+    public boolean equals(Object obj) {
+        return obj instanceof Function;
+    }
 }

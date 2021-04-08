@@ -7,8 +7,11 @@ import eu.jrie.abacus.core.domain.expression.TextValue;
 import eu.jrie.abacus.core.domain.expression.Value;
 import eu.jrie.abacus.core.domain.formula.ArgumentValueSupplier;
 import eu.jrie.abacus.core.domain.formula.FormulaImplementation;
+import eu.jrie.abacus.lang.domain.exception.InvalidInputException;
 import eu.jrie.abacus.lang.domain.exception.formula.InvalidArgumentNumberException;
 import eu.jrie.abacus.lang.domain.exception.formula.InvalidArgumentTypeException;
+import eu.jrie.abacus.lang.domain.grammar.ElementMatch;
+import eu.jrie.abacus.lang.domain.grammar.RuleMatch;
 import eu.jrie.abacus.lang.domain.grammar.Token;
 import eu.jrie.abacus.lang.domain.grammar.TokenMatch;
 
@@ -32,25 +35,33 @@ public class ArgumentParser {
         this.logicValueResolver = logicValueResolver;
     }
 
-    public List<ArgumentValueSupplier> parseArgs(FormulaImplementation impl, List<TokenMatch> givenArguments) throws InvalidArgumentTypeException, InvalidArgumentNumberException {
+    public List<ArgumentValueSupplier> parseArgs(
+            FormulaImplementation impl, List<ElementMatch> givenArguments, FormulaResolver formulaResolver
+    ) throws InvalidArgumentTypeException, InvalidArgumentNumberException {
         if (impl.isVararg()) {
-            return parseVarargs(impl.getVarargType(), givenArguments);
+            return parseVarargs(impl.getVarargType(), givenArguments, formulaResolver);
         } else {
-            return parseListArgs(impl, givenArguments);
+            return parseListArgs(impl, givenArguments, formulaResolver);
         }
     }
 
-    private List<ArgumentValueSupplier> parseVarargs(Class<? extends Expression> type, List<TokenMatch> givenArguments) throws InvalidArgumentTypeException {
+    private List<ArgumentValueSupplier> parseVarargs(
+            Class<? extends Expression> type,
+            List<ElementMatch> givenArguments,
+            FormulaResolver formulaResolver
+    ) throws InvalidArgumentTypeException {
         if (areAllArgumentsMatching(givenArguments, type)) {
             return givenArguments.stream()
-                    .map(this::parseArg)
+                    .map(arg -> parseArg(arg, formulaResolver))
                     .collect(toUnmodifiableList());
         } else {
             throw new InvalidArgumentTypeException();
         }
     }
 
-    private List<ArgumentValueSupplier> parseListArgs(FormulaImplementation impl, List<TokenMatch> givenArguments) throws InvalidArgumentNumberException, InvalidArgumentTypeException {
+    private List<ArgumentValueSupplier> parseListArgs(
+            FormulaImplementation impl, List<ElementMatch> givenArguments, FormulaResolver formulaResolver
+    ) throws InvalidArgumentNumberException, InvalidArgumentTypeException {
         final int definedArgsSize = impl.getArgumentTypes().size();
         if (definedArgsSize != givenArguments.size()) {
             throw new InvalidArgumentNumberException();
@@ -61,13 +72,33 @@ public class ArgumentParser {
             var arg = givenArguments.get(i);
             var type = impl.getArgumentTypes().get(i);
 
-            if (!areArgumentsMatching(arg.token(), type)) {
+            if (!areArgumentsMatching(arg, type)) {
                 throw new InvalidArgumentTypeException();
             }
 
-            parsedArguments.add(parseArg(arg));
+            var parsed = parseArg(arg, formulaResolver);
+            parsedArguments.add(parsed);
         }
         return unmodifiableList(parsedArguments);
+    }
+
+    private ArgumentValueSupplier parseArg(ElementMatch arg, FormulaResolver formulaResolver) {
+        if (arg instanceof RuleMatch ruleMatch) {
+            return parseArg(ruleMatch, formulaResolver);
+        } else if (arg instanceof TokenMatch tokenMatch){
+            return parseArg(tokenMatch);
+        } else {
+            throw new IllegalStateException();
+        }
+    }
+
+    private ArgumentValueSupplier parseArg(RuleMatch arg, FormulaResolver formulaResolver) {
+        try {
+            var formula = formulaResolver.resolve(arg);
+            return context -> formula.calculateValue();
+        } catch (InvalidInputException e) {
+            throw new IllegalStateException(e);
+        }
     }
 
     private ArgumentValueSupplier parseArg(TokenMatch arg) {
@@ -80,9 +111,19 @@ public class ArgumentParser {
         };
     }
 
-    private static boolean areAllArgumentsMatching(List<TokenMatch> givenArguments, Class<? extends Expression> argType) {
+    private static boolean areAllArgumentsMatching(List<ElementMatch> givenArguments, Class<? extends Expression> argType) {
         return givenArguments.stream()
+                .filter(arg -> arg instanceof TokenMatch)
+                .map(arg -> (TokenMatch) arg)
                 .allMatch(arg -> areArgumentsMatching(arg.token(), argType));
+    }
+
+    private static boolean areArgumentsMatching(ElementMatch match, Class<? extends Expression> argType) {
+        if (match instanceof TokenMatch tokenMatch) {
+            return areArgumentsMatching(tokenMatch.token(), argType);
+        } else {
+            return true;
+        }
     }
 
     private static boolean areArgumentsMatching(Token argToken, Class<? extends Expression> argType) {

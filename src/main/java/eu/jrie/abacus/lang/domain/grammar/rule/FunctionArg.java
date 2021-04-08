@@ -16,11 +16,17 @@ public class FunctionArg implements GrammarRule {
     @Override
     public List<List<GrammarElement>> getTokens() {
         return List.of(
+                singletonList(new Function()),
                 singletonList(TEXT_VALUE),
                 singletonList(NUMBER_VALUE),
                 singletonList(CELL_REFERENCE),
                 singletonList(LOGIC_TRUE_VALUE),
                 singletonList(LOGIC_FALSE_VALUE)
         );
+    }
+
+    @Override
+    public boolean equals(Object obj) {
+        return obj instanceof FunctionArg;
     }
 }

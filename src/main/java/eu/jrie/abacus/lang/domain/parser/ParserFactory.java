@@ -13,7 +13,8 @@ public abstract class ParserFactory {
 
     public static Parser buildParser(WorkbenchContext context) {
         var argumentsParser = buildArgumentParser();
-        var formulaParser = new FormulaParser(context, argumentsParser);
+        var grammarParser = new GrammarParser();
+        var formulaParser = new FormulaParser(context, grammarParser, argumentsParser);
         var valueParser = new ValueParser();
         return new Parser(valueParser, formulaParser);
     }

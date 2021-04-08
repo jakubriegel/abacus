@@ -4,4 +4,4 @@ public record TokenMatch (
         Token token,
         String match,
         String raw
-) {}
+) implements ElementMatch {}
