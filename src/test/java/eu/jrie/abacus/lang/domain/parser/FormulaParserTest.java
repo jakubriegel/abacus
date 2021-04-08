@@ -10,6 +10,8 @@ import eu.jrie.abacus.core.domain.formula.FormulaImplementation;
 import eu.jrie.abacus.core.domain.workbench.WorkbenchContext;
 import eu.jrie.abacus.lang.domain.exception.InvalidInputException;
 import eu.jrie.abacus.lang.domain.exception.formula.InvalidArgumentTypeException;
+import eu.jrie.abacus.lang.domain.grammar.ElementMatch;
+import eu.jrie.abacus.lang.domain.grammar.RuleMatch;
 import eu.jrie.abacus.lang.domain.grammar.Token;
 import eu.jrie.abacus.lang.domain.grammar.TokenMatch;
 import eu.jrie.abacus.lang.domain.parser.argument.ArgumentParser;
@@ -108,14 +110,14 @@ class FormulaParserTest {
     void shouldMatchNoArgFormula(String formulaText) throws InvalidInputException {
         // given
         when(context.findFormulasDefinition(FORMULA_NAME)).thenReturn(singletonList(NO_ARG_FORMULA));
-        when(argumentParser.parseArgs(NO_ARG_FORMULA, emptyList())).thenReturn(emptyList());
+        when(argumentParser.parseArgs(eq(NO_ARG_FORMULA), eq(emptyList()), any())).thenReturn(emptyList());
 
         // when
         var result = parser.parse(formulaText);
 
         // then
         verify(context).findFormulasDefinition(FORMULA_NAME);
-        verify(argumentParser).parseArgs(NO_ARG_FORMULA, emptyList());
+        verify(argumentParser).parseArgs(eq(NO_ARG_FORMULA), eq(emptyList()), any());
 
         // and
         assertEquals(FORMULA_NAME, result.functionName());
@@ -132,14 +134,14 @@ class FormulaParserTest {
 
         // and
         when(context.findFormulasDefinition(FORMULA_NAME)).thenReturn(singleArgFormulas);
-        when(argumentParser.parseArgs(eq(SINGLE_NUMBER_ARG_FORMULA), matches(matchedArg))).thenReturn(singletonList(c -> expectedArg));
+        when(argumentParser.parseArgs(eq(SINGLE_NUMBER_ARG_FORMULA), matches(matchedArg), any())).thenReturn(singletonList(c -> expectedArg));
 
         // when
         var result = parser.parse(formulaText);
 
         // then
         verify(context).findFormulasDefinition(FORMULA_NAME);
-        verify(argumentParser).parseArgs(eq(SINGLE_NUMBER_ARG_FORMULA), matches(matchedArg));
+        verify(argumentParser).parseArgs(eq(SINGLE_NUMBER_ARG_FORMULA), matches(matchedArg), any());
 
         // and
         assertEquals(FORMULA_NAME, result.functionName());
@@ -156,15 +158,15 @@ class FormulaParserTest {
 
         // and
         when(context.findFormulasDefinition(FORMULA_NAME)).thenReturn(singleArgFormulas);
-        when(argumentParser.parseArgs(eq(SINGLE_NUMBER_ARG_FORMULA), any())).thenThrow(new InvalidArgumentTypeException());
-        when(argumentParser.parseArgs(eq(SINGLE_TEXT_ARG_FORMULA), matches(matchedArg))).thenReturn(singletonList(c -> expectedArg));
+        when(argumentParser.parseArgs(eq(SINGLE_NUMBER_ARG_FORMULA), any(), any())).thenThrow(new InvalidArgumentTypeException());
+        when(argumentParser.parseArgs(eq(SINGLE_TEXT_ARG_FORMULA), matches(matchedArg), any())).thenReturn(singletonList(c -> expectedArg));
 
         // when
         var result = parser.parse(formulaText);
 
         // then
         verify(context, atLeast(1)).findFormulasDefinition(FORMULA_NAME);
-        verify(argumentParser).parseArgs(eq(SINGLE_TEXT_ARG_FORMULA), matches(matchedArg));
+        verify(argumentParser).parseArgs(eq(SINGLE_TEXT_ARG_FORMULA), matches(matchedArg), any());
 
         // and
         assertEquals(FORMULA_NAME, result.functionName());
@@ -181,16 +183,16 @@ class FormulaParserTest {
 
         // and
         when(context.findFormulasDefinition(FORMULA_NAME)).thenReturn(singleArgFormulas);
-        when(argumentParser.parseArgs(eq(SINGLE_NUMBER_ARG_FORMULA), any())).thenThrow(new InvalidArgumentTypeException());
-        when(argumentParser.parseArgs(eq(SINGLE_TEXT_ARG_FORMULA), any())).thenThrow(new InvalidArgumentTypeException());
-        when(argumentParser.parseArgs(eq(SINGLE_LOGIC_ARG_FORMULA), matches(matchedArg))).thenReturn(singletonList(c -> expectedArg));
+        when(argumentParser.parseArgs(eq(SINGLE_NUMBER_ARG_FORMULA), any(), any())).thenThrow(new InvalidArgumentTypeException());
+        when(argumentParser.parseArgs(eq(SINGLE_TEXT_ARG_FORMULA), any(), any())).thenThrow(new InvalidArgumentTypeException());
+        when(argumentParser.parseArgs(eq(SINGLE_LOGIC_ARG_FORMULA), matches(matchedArg), any())).thenReturn(singletonList(c -> expectedArg));
 
         // when
         var result = parser.parse(formulaText);
 
         // then
         verify(context, atLeast(1)).findFormulasDefinition(FORMULA_NAME);
-        verify(argumentParser).parseArgs(eq(SINGLE_LOGIC_ARG_FORMULA), matches(matchedArg));
+        verify(argumentParser).parseArgs(eq(SINGLE_LOGIC_ARG_FORMULA), matches(matchedArg), any());
 
         // and
         assertEquals(FORMULA_NAME, result.functionName());
@@ -207,14 +209,37 @@ class FormulaParserTest {
 
         // and
         when(context.findFormulasDefinition(FORMULA_NAME)).thenReturn(singleArgFormulas);
-        when(argumentParser.parseArgs(eq(SINGLE_NUMBER_ARG_FORMULA), matches(matchedArg))).thenReturn(singletonList(c -> expectedArg));
+        when(argumentParser.parseArgs(eq(SINGLE_NUMBER_ARG_FORMULA), matches(matchedArg), any())).thenReturn(singletonList(c -> expectedArg));
 
         // when
         var result = parser.parse(formulaText);
 
         // then
         verify(context).findFormulasDefinition(FORMULA_NAME);
-        verify(argumentParser).parseArgs(eq(SINGLE_NUMBER_ARG_FORMULA), matches(matchedArg));
+        verify(argumentParser).parseArgs(eq(SINGLE_NUMBER_ARG_FORMULA), matches(matchedArg), any());
+
+        // and
+        assertEquals(FORMULA_NAME, result.functionName());
+        assertArgumentsEquals(singletonList(expectedArg), result.arguments());
+        assertEquals(expectedArg, result.action().get());
+    }
+
+    @ParameterizedTest(name = "should match formula arg formula - \"{0}\"")
+    @ValueSource(strings = {"action(action(1))", "action ( action ( 1 ) ) "})
+    void shouldMatchSingleFormulaArgFormula(String formulaText) throws InvalidInputException {
+        // given
+        var expectedArg = new NumberValue(ONE);
+
+        // and
+        when(context.findFormulasDefinition(FORMULA_NAME)).thenReturn(singleArgFormulas);
+        when(argumentParser.parseArgs(eq(SINGLE_NUMBER_ARG_FORMULA), matchesFormula(), any())).thenReturn(singletonList(c -> expectedArg));
+
+        // when
+        var result = parser.parse(formulaText);
+
+        // then
+        verify(context).findFormulasDefinition(FORMULA_NAME);
+        verify(argumentParser).parseArgs(eq(SINGLE_NUMBER_ARG_FORMULA), matchesFormula(), any());
 
         // and
         assertEquals(FORMULA_NAME, result.functionName());
@@ -275,14 +300,14 @@ class FormulaParserTest {
 
                                 // and
                                 when(context.findFormulasDefinition(FORMULA_NAME)).thenReturn(singletonList(impl));
-                                when(argumentParser.parseArgs(eq(impl), matches(matchedArgs))).thenReturn(parsedArgs);
+                                when(argumentParser.parseArgs(eq(impl), matches(matchedArgs), any())).thenReturn(parsedArgs);
 
                                 // when
                                 var result = parser.parse(formulaText);
 
                                 // then
                                 verify(context).findFormulasDefinition(FORMULA_NAME);
-                                verify(argumentParser).parseArgs(eq(impl), matches(matchedArgs));
+                                verify(argumentParser).parseArgs(eq(impl), matches(matchedArgs), any());
 
                                 // and
                                 assertEquals(FORMULA_NAME, result.functionName());
@@ -351,9 +376,16 @@ class FormulaParserTest {
 
     private static record TokenMatchListMatcher(
             List<TokenMatchMatcher> matchers
-    ) implements ArgumentMatcher<List<TokenMatch>> {
+    ) implements ArgumentMatcher<List<ElementMatch>> {
         @Override
-        public boolean matches(List<TokenMatch> other) {
+        public boolean matches(List<ElementMatch> other) {
+            var tokenMatches = other.stream()
+                    .map(match -> (TokenMatch) match)
+                    .collect(toUnmodifiableList());
+            return matchesTokens(tokenMatches);
+        }
+
+        private boolean matchesTokens(List<TokenMatch> other) {
             if (other.size() != matchers.size()) {
                 return false;
             } else {
@@ -369,11 +401,25 @@ class FormulaParserTest {
         }
     }
 
-    private static List<TokenMatch> matches(TokenMatchMatcher matcher) {
+    private static List<ElementMatch> matches(TokenMatchMatcher matcher) {
         return matches(singletonList(matcher));
     }
 
-    private static List<TokenMatch> matches(List<TokenMatchMatcher> matchers) {
+    private static List<ElementMatch> matches(List<TokenMatchMatcher> matchers) {
         return argThat(new TokenMatchListMatcher(matchers));
+    }
+
+    private static class FormulaMatchListMatcher implements ArgumentMatcher<List<ElementMatch>> {
+        @Override
+        public boolean matches(List<ElementMatch> other) {
+            return other.size() == 1 && other.stream()
+                    .map(match -> (RuleMatch) match)
+                    .map(RuleMatch::rule)
+                    .allMatch(rule -> rule instanceof eu.jrie.abacus.lang.domain.grammar.rule.Function);
+        }
+    }
+
+    private static List<ElementMatch> matchesFormula() {
+        return argThat(new FormulaMatchListMatcher());
     }
 }
